@@ -1,19 +1,67 @@
 /**
- * 鉴权工具 —— 增强版
+ * 鉴权工具 —— 适配公司物联网平台 JWT
  * ============================================================
- * 负责 token / refreshToken / 用户信息 的本地存取、
- * 过期判断、自动刷新、清理、登录态判断。
+ * 负责 JWT token / 用户信息 的本地存取、
+ * 过期判断（从 JWT payload 中解码 exp）、清理、登录态判断。
+ * 平台无 refreshToken 机制，token 过期后直接跳登录页。
  * 所有数据均使用 wx.sync 同步接口，保证取值即时可用。
  */
 const config = require('./config')
+
+// ============ 内部辅助：JWT 解码 ============
+
+/**
+ * Base64Url 解码（微信小程序不支持 atob，手动实现）
+ * @param {string} str Base64Url 字符串
+ * @returns {string} 解码后的字符串
+ */
+function base64UrlDecode(str) {
+  // Base64Url → Base64
+  var base64 = str.replace(/-/g, '+').replace(/_/g, '/')
+  // 补齐 padding
+  var pad = base64.length % 4
+  if (pad) {
+    base64 += new Array(5 - pad).join('=')
+  }
+  // 使用小程序自带的 base64 解码
+  try {
+    var arrayBuffer = wx.base64ToArrayBuffer(base64)
+    var bytes = new Uint8Array(arrayBuffer)
+    var result = ''
+    for (var i = 0; i < bytes.length; i++) {
+      result += String.fromCharCode(bytes[i])
+    }
+    return decodeURIComponent(escape(result))
+  } catch (e) {
+    console.warn('[auth] base64UrlDecode 失败', e)
+    return ''
+  }
+}
+
+/**
+ * 解码 JWT token，提取 payload
+ * @param {string} token JWT token
+ * @returns {object|null} payload 对象
+ */
+function decodeJwt(token) {
+  if (!token || typeof token !== 'string') return null
+  var parts = token.split('.')
+  if (parts.length !== 3) return null
+  try {
+    var payloadStr = base64UrlDecode(parts[1])
+    return JSON.parse(payloadStr)
+  } catch (e) {
+    console.warn('[auth] JWT 解码失败', e)
+    return null
+  }
+}
 
 // ============ 内部辅助：token 过期时间戳 ============
 
 /** 保存 token 过期时间戳（秒，UNIX 时间戳） */
 function setTokenExpire(expireSeconds) {
   try {
-    // 计算绝对过期时间戳
-    const expireAt = Math.floor(Date.now() / 1000) + expireSeconds
+    var expireAt = Math.floor(Date.now() / 1000) + expireSeconds
     wx.setStorageSync(config.tokenExpireKey, expireAt)
   } catch (e) {
     console.warn('[auth] setTokenExpire 失败', e)
@@ -32,13 +80,13 @@ function getTokenExpire() {
 /**
  * 判断 token 是否即将过期
  * @param {number} threshold 提前量（秒），默认取 config 中的 tokenRefreshThreshold
- * @returns {boolean} true=需要刷新
+ * @returns {boolean} true=即将过期
  */
 function isTokenExpiringSoon(threshold) {
-  const t = threshold || config.tokenRefreshThreshold || 300
-  const expireAt = getTokenExpire()
+  var t = threshold || config.tokenRefreshThreshold || 300
+  var expireAt = getTokenExpire()
   if (!expireAt) return false
-  const now = Math.floor(Date.now() / 1000)
+  var now = Math.floor(Date.now() / 1000)
   return (expireAt - now) < t
 }
 
@@ -56,21 +104,31 @@ module.exports = {
 
   /**
    * 保存 token
-   * @param {string} token
-   * @param {number} expireSeconds token 有效期（秒），可选
+   * @param {string} token JWT token
+   * @param {number} expireSeconds token 有效期（秒），可选（不传则从 JWT 中解码）
    */
   setToken(token, expireSeconds) {
     try {
       wx.setStorageSync(config.tokenKey, token)
       if (expireSeconds) {
         setTokenExpire(expireSeconds)
+      } else if (token) {
+        // 从 JWT payload 中解码过期时间
+        var payload = decodeJwt(token)
+        if (payload && payload.exp) {
+          var now = Math.floor(Date.now() / 1000)
+          var remaining = payload.exp - now
+          if (remaining > 0) {
+            setTokenExpire(remaining)
+          }
+        }
       }
     } catch (e) {
       console.warn('[auth] setToken 失败', e)
     }
   },
 
-  /** 读取 refreshToken */
+  /** 读取 refreshToken（平台无此机制，保留兼容） */
   getRefreshToken() {
     try {
       return wx.getStorageSync(config.refreshTokenKey) || ''
@@ -79,7 +137,7 @@ module.exports = {
     }
   },
 
-  /** 保存 refreshToken */
+  /** 保存 refreshToken（平台无此机制，保留兼容） */
   setRefreshToken(refreshToken) {
     try {
       wx.setStorageSync(config.refreshTokenKey, refreshToken)
@@ -106,13 +164,20 @@ module.exports = {
     }
   },
 
-  /** 是否已登录（仅判断 token 是否存在） */
+  /** 是否已登录（token 存在且未过期） */
   isLogin() {
-    return !!this.getToken()
+    var token = this.getToken()
+    if (!token) return false
+    var expireAt = getTokenExpire()
+    if (expireAt) {
+      var now = Math.floor(Date.now() / 1000)
+      return now < expireAt
+    }
+    return true
   },
 
   /**
-   * 判断 token 是否需要刷新
+   * 判断 token 是否即将过期
    * @param {number} threshold 提前量（秒）
    */
   needRefresh(threshold) {
@@ -120,26 +185,25 @@ module.exports = {
   },
 
   /**
-   * 调用后端接口刷新 token
-   * @returns {Promise<string>} 新 token
+   * 刷新 token（平台无 refreshToken 接口，直接返回失败）
+   * request.js 中 401 会直接跳转登录页
    */
   refreshToken() {
-    const request = require('./request')
-    const rt = this.getRefreshToken()
-    if (!rt) {
-      return Promise.reject(new Error('无 refreshToken'))
+    return Promise.reject(new Error('平台无 refreshToken 机制，请重新登录'))
+  },
+
+  /**
+   * 从 JWT token 中解码用户信息
+   * @returns {object|null} 用户信息
+   */
+  decodeUserInfo() {
+    var token = this.getToken()
+    if (!token) return null
+    var payload = decodeJwt(token)
+    if (payload && payload.User) {
+      return payload.User
     }
-    return request.post('/auth/refresh', { refreshToken: rt }).then(function (data) {
-      // 后端返回：{ token, refreshToken, expiresIn }
-      if (data && data.token) {
-        this.setToken(data.token, data.expiresIn || 7200)
-        if (data.refreshToken) {
-          this.setRefreshToken(data.refreshToken)
-        }
-        return data.token
-      }
-      throw new Error('刷新 token 返回异常')
-    }.bind(this))
+    return null
   },
 
   /**
@@ -159,5 +223,9 @@ module.exports = {
   /** 兼容旧代码的 clearAuth */
   clearAuth() {
     this.clear()
-  }
+  },
+
+  /** 内部方法导出（供 login.js 调用） */
+  _decodeJwt: decodeJwt
 }
+

@@ -187,3 +187,35 @@
   line-height: 1.8;
   white-space: pre-line;
 }
+
+/* ============ 验证码样式 ============ */
+.captcha-row {
+  flex-wrap: wrap;
+}
+
+.captcha-input {
+  flex: 1 !important;
+  min-width: 200rpx;
+}
+
+.captcha-img {
+  width: 180rpx;
+  height: 64rpx;
+  margin-left: 16rpx;
+  border-radius: 8rpx;
+  border: 2rpx solid #E2E8F0;
+  background: #F8FAFC;
+}
+
+.captcha-loading {
+  width: 180rpx;
+  height: 64rpx;
+  line-height: 64rpx;
+  text-align: center;
+  font-size: 22rpx;
+  color: #94A3B8;
+  margin-left: 16rpx;
+  border-radius: 8rpx;
+  border: 2rpx dashed #CBD5E1;
+  background: #F8FAFC;
+}

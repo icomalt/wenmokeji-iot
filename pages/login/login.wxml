@@ -31,7 +31,14 @@
     </view>
     <view class="form-item">
       <text class="label">密码</text>
-      <input class="input" password placeholder="请输入密码" value="{{password}}" bindinput="onInput" data-key="password"/>
+      <input class="input" password placeholder="请输入密码" value="{{password}}" bindinput="onInput" data-key="password" bindconfirm="onConfirmPassword"/>
+    </view>
+    <!-- 验证码（对接公司平台） -->
+    <view class="form-item captcha-row" wx:if="{{!isMock}}">
+      <text class="label">验证码</text>
+      <input class="input captcha-input" placeholder="请输入验证码" value="{{captcha}}" bindinput="onInput" data-key="captcha"/>
+      <image class="captcha-img" src="{{captchaImg}}" mode="aspectFit" bindtap="refreshCaptcha" wx:if="{{captchaImg}}"/>
+      <view class="captcha-loading" wx:else bindtap="refreshCaptcha">点击加载</view>
     </view>
     <button class="btn-primary" loading="{{loading}}" disabled="{{loading}}" bindtap="onLogin">登 录</button>
   </view>

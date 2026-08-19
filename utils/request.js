@@ -130,21 +130,8 @@ if (config.mock) {
         success: function (res) {
           if (loading) wx.hideLoading()
 
-          // 401：token 过期，尝试自动刷新
-          if (res.statusCode === 401 && !_isRefreshRetry) {
-            // 尝试刷新 token
-            doRefreshToken().then(function (newToken) {
-              // 刷新成功，携带新 token 重发原请求
-              console.log('[request] token 已刷新，重发原请求:', url)
-              resolve(doRealRequest(Object.assign({}, options, { _isRefreshRetry: true })))
-            }).catch(function () {
-              reject(new Error('未授权'))
-            })
-            return
-          }
-
-          // 401 且已刷新过仍然失败
-          if (res.statusCode === 401 && _isRefreshRetry) {
+          // 401：token 过期，平台无 refreshToken 机制，直接跳登录
+          if (res.statusCode === 401) {
             auth.clear()
             wx.showToast({ title: '登录已失效，请重新登录', icon: 'none' })
             setTimeout(function () {
@@ -170,9 +157,9 @@ if (config.mock) {
           }
 
           const body = res.data || {}
-          // 业务层带 code 字段
+          // 业务层带 code 字段（兼容 code=0 和 code=200 两种成功格式）
           if (body.code !== undefined) {
-            if (body.code !== 0) {
+            if (body.code !== 0 && body.code !== 200) {
               wx.showToast({ title: body.message || '业务异常', icon: 'none' })
               reject(new Error(body.message || '业务异常'))
               return

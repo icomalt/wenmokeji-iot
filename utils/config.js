@@ -20,33 +20,40 @@
 
 // ============ 各环境独立配置 ============
 const ENV = {
-  /** 开发环境 —— 本地调试/联调 */
+  /**
+   * 开发环境 —— 对接公司物联网平台（阿里云）
+   * API 端口 8082，前端端口 3019
+   * 鉴权方式：JWT Bearer token
+   */
   dev: {
     mock: false,
-    baseUrl: 'http://localhost:3000/api',
-    wsUrl: 'ws://localhost:3000/ws',
-    requestTimeout: 15000,
-    tokenRefreshThreshold: 600,       // token 剩余有效期 <600s 时自动刷新
-    retryTimes: 2,                     // 单次请求失败重试次数
-    retryDelay: 1000                   // 重试间隔（ms）
-  },
-
-  /** 预发布环境 —— 模拟线上环境，用于发布前最后验证 */
-  staging: {
-    mock: false,
-    baseUrl: 'https://iot-staging.your-domain.com/api',
-    wsUrl: 'wss://iot-staging.your-domain.com/ws',
+    baseUrl: 'http://8.134.177.27:8082/api/v1',
+    webUrl: 'http://8.134.177.27:3019',
+    wsUrl: '',                          // 平台暂无 WebSocket，留空
     requestTimeout: 15000,
     tokenRefreshThreshold: 600,
     retryTimes: 2,
     retryDelay: 1000
   },
 
-  /** 正式生产环境 */
+  /** 预发布环境 —— 模拟线上环境，用于发布前最后验证 */
+  staging: {
+    mock: false,
+    baseUrl: 'https://iot-staging.your-domain.com/api/v1',
+    webUrl: 'https://iot-staging.your-domain.com',
+    wsUrl: '',
+    requestTimeout: 15000,
+    tokenRefreshThreshold: 600,
+    retryTimes: 2,
+    retryDelay: 1000
+  },
+
+  /** 正式生产环境 —— 部署后替换为正式域名 */
   prod: {
     mock: false,
-    baseUrl: 'https://iot.your-domain.com/api',
-    wsUrl: 'wss://iot.your-domain.com/ws',
+    baseUrl: 'https://iot.your-domain.com/api/v1',
+    webUrl: 'https://iot.your-domain.com',
+    wsUrl: '',
     requestTimeout: 10000,
     tokenRefreshThreshold: 300,
     retryTimes: 3,
@@ -75,6 +82,8 @@ module.exports = {
 
   // IoT 云平台 HTTPS 接口基础地址（需在微信后台配置为 request 合法域名）
   baseUrl: active.baseUrl,
+  // 物联网平台 Web 前端地址（用于拼接验证码图片等）
+  webUrl: active.webUrl,
   // WebSocket 长连接地址（需在微信后台配置为 socket 合法域名，必须 wss）
   wsUrl: active.wsUrl,
 
