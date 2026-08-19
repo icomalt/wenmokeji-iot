@@ -117,7 +117,7 @@ Page({
       })
   },
 
-  // 验证管理员密码
+  // 验证管理员密码（调用后端 /auth/verify-admin 接口鉴权，避免前端硬编码密码）
   verifyPassword: function (callback) {
     wx.showModal({
       title: '密码验证',
@@ -128,7 +128,21 @@ Page({
           callback && callback(false)
           return
         }
-        callback && callback(true)
+        var password = (res.content || '').trim()
+        if (!password) {
+          wx.showToast({ title: '密码不能为空', icon: 'none' })
+          callback && callback(false)
+          return
+        }
+        // 调用后端接口验证管理员密码，密码不在前端保存
+        api.post('/auth/verify-admin', { password: password }, { loading: false })
+          .then(function () {
+            callback && callback(true)
+          })
+          .catch(function () {
+            wx.showToast({ title: '密码错误', icon: 'none' })
+            callback && callback(false)
+          })
       }
     })
   },
@@ -228,6 +242,7 @@ Page({
     }
   },
 
+  // 退出登录：先关闭 WebSocket，再调用后端 /auth/logout 使 token 失效，最后清理本地状态
   logout: function () {
     var that = this
     wx.showModal({
@@ -235,9 +250,17 @@ Page({
       content: '确定退出登录？',
       success: function (res) {
         if (res.confirm) {
+          // 先关闭 WebSocket 连接
           if (ws.closeAll) ws.closeAll()
-          auth.clearAuth()
-          wx.reLaunch({ url: '/pages/login/login' })
+          // 调用后端登出接口，使 token 在服务端失效
+          api.post('/auth/logout', {}, { loading: false })
+            .catch(function () {
+              // 登出接口失败不阻塞，仍然清理本地登录态
+            })
+            .then(function () {
+              auth.clearAuth()
+              wx.reLaunch({ url: '/pages/login/login' })
+            })
         }
       }
     })

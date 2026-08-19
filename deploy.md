@@ -32,17 +32,16 @@
 打开 `utils/config.js`，修改 `CURRENT_ENV` 字段即可：
 
 ```javascript
-const CURRENT_ENV = 'dev'      // 开发环境，默认开启 mock
+const CURRENT_ENV = 'dev'      // 开发环境，对接公司物联网平台（mock=false）
 // const CURRENT_ENV = 'staging' // 预发布环境，联调验证
-// const CURRENT_ENV = 'prod'    // 正式生产环境
+// const CURRENT_ENV = 'prod'    // 正式生产环境，上线前切换
 ```
 
 ### 各环境说明
 
 | 环境 | mock | baseUrl | 用途 |
 |------|------|---------|------|
-| dev | true | iot-dev.your-domain.com | 本地开发，无需后端 |
-| dev（联调） | false | iot-dev.your-domain.com | 与后端联调 |
+| dev | false | 8.134.177.27:8082/api/v1 | 对接公司物联网平台（阿里云） |
 | staging | false | iot-staging.your-domain.com | 预发布验证 |
 | prod | false | iot.your-domain.com | 正式上线 |
 
@@ -54,39 +53,29 @@ const CURRENT_ENV = 'dev'      // 开发环境，默认开启 mock
 
 | 接口 | 方法 | 路径 | 说明 |
 |------|------|------|------|
-| 账号登录 | POST | /auth/login | 返回 token + refreshToken + expiresIn + userInfo |
-| 刷新 token | POST | /auth/refresh | body: { refreshToken }，返回新 token + refreshToken |
+| 验证码图片 | GET | /pub/captcha | 返回验证码图片（arraybuffer），同时下发 cookie |
+| 账号登录 | POST | /pub/login | body: { username, password, captcha }，需携带验证码 cookie，返回 JWT token |
 | 登出 | POST | /auth/logout | 使后端 token 失效，前端清除本地缓存 |
 | 管理员验证 | POST | /auth/verify-admin | body: { password }，验证添加/删除设备权限 |
 
-**登录响应格式：**
+**登录响应格式（平台实际）：**
 ```json
 {
-  "code": 0,
-  "message": "success",
-  "data": {
-    "token": "eyJhbGciOiJIUzI1NiJ9...",
-    "refreshToken": "rt_abc123...",
-    "expiresIn": 7200,
-    "userInfo": {
-      "userId": "U001",
-      "userName": "张三",
-      "customerId": "C001",
-      "customerName": "某某包装有限公司"
-    }
-  }
+  "token": "eyJhbGciOiJIUzI1NiJ9...",
+  "user": { ... }
 }
 ```
+> 平台采用 JWT Bearer token 鉴权，无 refreshToken 机制。JWT payload 中包含 User 对象（id、user_name、user_nickname、role_id、tenant_id 等字段），前端通过 decodeJwt 解码提取过期时间和用户信息。
 
 ### 3.2 设备管理
 
 | 接口 | 方法 | 路径 | 说明 |
 |------|------|------|------|
 | 设备统计 | GET | /device/statistic | 返回 total/online/offline/fault |
-| 设备列表 | GET | /device/list | 分页，按 customerId 过滤，body: { keyword, page, pageSize } |
-| 设备详情 | GET | /device/detail | body: { deviceId } |
-| 添加设备 | POST | /device/add | body: { deviceId } |
-| 删除设备 | POST | /device/delete | body: { deviceId } |
+| 设备列表 | GET | /device/list | 分页，按 token 中 tenant_id 过滤，query: { device_name, page_num, page_size } |
+| 设备详情 | GET | /device/info | query: { device_id }，返回设备实时信息 |
+| 添加设备 | POST | /device/add | body: { device_id }，需先通过 /auth/verify-admin 鉴权 |
+| 删除设备 | POST | /device/delete | body: { device_id }，需先通过 /auth/verify-admin 鉴权 |
 | 打印下发 | POST | /device/print/dispatch | body: { deviceId, content, fontSize, count, immediate } |
 | 历史记录 | GET | /device/print/history | 分页，body: { deviceId, page, pageSize } |
 
@@ -176,8 +165,8 @@ A: 检查 config.js 中 baseUrl 是否为正确的生产环境地址，确认微
 ### Q3: WebSocket 连接不上
 A: 检查 wsUrl 是否使用 wss://，检查微信后台 socket 合法域名配置
 
-### Q4: token 刷新后接口仍然 401
-A: 检查后端 /auth/refresh 接口是否正常返回新 token，刷新后需确保重新发起原请求
+### Q4: token 过期后接口返回 401
+A: 平台无 refreshToken 机制，token 过期后前端会自动清理登录态并跳转登录页，重新登录即可
 
 ### Q5: 小程序包大小超过 2MB
 A: 在 project.config.json 的 packOptions.ignore 中配置需忽略的文件；图片等资源可放在 CDN
