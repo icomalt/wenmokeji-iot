@@ -1,0 +1,85 @@
+/* ================================================
+ * 设备详情页 - 红蓝工业风
+ * ================================================ */
+
+.d-head {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 2rpx solid #E2E8F0;
+}
+
+.d-head .d-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  flex: 1;
+  color: #0F172A;
+}
+
+.d-head .tag {
+  margin-left: 12rpx;
+}
+
+.d-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18rpx 0;
+  border-bottom: 1rpx solid #F1F5F9;
+  font-size: 28rpx;
+}
+
+.d-row:last-child {
+  border-bottom: none;
+}
+
+.d-row .muted {
+  color: #64748B;
+  font-weight: 500;
+}
+
+.d-row text:last-child {
+  color: #0F172A;
+}
+
+.print-content {
+  background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+  border: 1rpx solid #E2E8F0;
+  border-radius: 16rpx;
+  padding: 28rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #1A365D;
+  word-break: break-all;
+  letter-spacing: 2rpx;
+  line-height: 1.6;
+}
+
+/* 操作按钮组 */
+.actions {
+  padding: 40rpx 24rpx;
+  display: flex;
+  justify-content: space-between;
+}
+
+.actions button {
+  flex: 1;
+  margin: 0 12rpx;
+}
+
+.actions button:first-child {
+  margin-left: 0;
+}
+
+.actions button:last-child {
+  margin-right: 0;
+}
+
+.btn-primary {
+  margin-bottom: 0;
+}
+
+.btn-ghost {
+  margin-bottom: 0;
+}

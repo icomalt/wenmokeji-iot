@@ -1,0 +1,35 @@
+<!--
+  历史记录页
+  功能：按设备 + 日期筛选 + 下拉刷新 + 上拉分页 + 空数据判断
+-->
+<view class="page">
+  <!-- 筛选条 -->
+  <view class="filter card">
+    <picker mode="date" value="{{date}}" bindchange="onDateChange">
+      <view class="picker {{date ? 'active' : ''}}">{{date || '选择日期筛选'}}</view>
+    </picker>
+    <view wx:if="{{date}}" class="clear" bindtap="clearDate">清除</view>
+  </view>
+
+  <!-- 空数据 -->
+  <view wx:if="{{list.length === 0 && !loading}}" class="empty">
+    <text class="empty-icon">📋</text>暂无打印记录
+  </view>
+
+  <!-- 记录列表 -->
+  <view class="list">
+    <view wx:for="{{list}}" wx:key="recordId" class="card item">
+      <view class="item-head">
+        <text class="r-time">{{item.printTime}}</text>
+        <text class="tag {{item.status === 1 ? 'tag-online' : 'tag-fault'}}">{{item.status === 1 ? '成功' : '失败'}}</text>
+      </view>
+      <view class="r-content">{{item.printContent}}</view>
+      <view class="r-meta">操作人：{{item.operator || '--'}} · 次数：{{item.count || 1}}</view>
+    </view>
+  </view>
+
+  <!-- 分页提示 -->
+  <view wx:if="{{list.length > 0}}" class="load-tip">
+    {{hasMore ? '上拉加载更多...' : '没有更多了'}}
+  </view>
+</view>

@@ -1,0 +1,227 @@
+/* ================================================
+ * 首页 - 白色主题（红蓝点缀工业风）
+ * 白色背景 + 深蓝标题/数字 + 红色强调
+ * ================================================ */
+
+/* 页面背景 */
+.page {
+  background: #F1F5F9;
+  min-height: 100vh;
+}
+
+/* 顶部欢迎栏 - 深蓝渐变 */
+.hero {
+  background: linear-gradient(135deg, #1A365D 0%, #2D4A7A 100%);
+  padding: 0 40rpx 80rpx;
+  border-radius: 0 0 32rpx 32rpx;
+}
+
+.hero-brand {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin-bottom: 16rpx;
+}
+
+/* 预留图片 logo - 横向铺满 */
+.hero-logo {
+  width: 100%;
+}
+
+/* CSS 绘制的水墨小 Logo */
+.hero-logo-fallback {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.mini-ink {
+  position: relative;
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #1A365D 0%, #000 100%);
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.4), inset 0 2rpx 8rpx rgba(255, 255, 255, 0.1);
+}
+
+.mini-ink-char {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #fff;
+  font-family: "KaiTi", "STKaiti", "楷体", serif;
+  text-shadow: 0 1rpx 4rpx rgba(0, 0, 0, 0.6);
+}
+
+.hero-title {
+  color: #fff;
+  font-size: 36rpx;
+  font-weight: bold;
+  letter-spacing: 4rpx;
+  font-family: "KaiTi", "STKaiti", "楷体", serif;
+}
+
+.hero-sub {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 26rpx;
+  margin-top: 8rpx;
+  letter-spacing: 2rpx;
+}
+
+/* 统计卡片网格 - 白底 + 左侧色条强调 */
+.stat-grid {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0 16rpx;
+  margin-top: -50rpx;
+}
+.stat-card {
+  width: 33.33%;
+  box-sizing: border-box;
+  padding: 12rpx;
+}
+.stat-card .stat-num {
+  display: block;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 36rpx 0;
+  text-align: center;
+  font-size: 52rpx;
+  font-weight: bold;
+  color: #1A365D;
+  box-shadow: 0 4rpx 16rpx rgba(15, 23, 42, 0.06);
+  border: 1rpx solid #E2E8F0;
+}
+.stat-card.online .stat-num { color: #059669; }
+.stat-card.fault .stat-num { color: #DC2626; }
+.stat-card .stat-lbl {
+  display: block;
+  text-align: center;
+  font-size: 24rpx;
+  color: #64748B;
+  margin-top: 12rpx;
+  margin-bottom: 8rpx;
+}
+
+/* 快捷功能卡片 */
+.card {
+  background: #fff;
+  margin: 24rpx 24rpx 0;
+  padding: 32rpx 24rpx;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 16rpx rgba(26, 54, 93, 0.06);
+}
+
+.card-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #1A365D;
+  margin-bottom: 16rpx;
+  padding-left: 16rpx;
+  border-left: 6rpx solid #DC2626;
+}
+
+.quick-grid {
+  display: flex;
+  flex-wrap: wrap;
+}
+.quick-item {
+  width: 25%;
+  text-align: center;
+  padding: 24rpx 0;
+}
+.quick-icon {
+  display: block;
+  font-size: 56rpx;
+  margin-bottom: 12rpx;
+}
+.quick-lbl {
+  font-size: 24rpx;
+  color: #475569;
+}
+
+/* 设备管理按钮组 */
+.mgmt-btns {
+  display: flex;
+  gap: 24rpx;
+}
+.mgmt-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32rpx 0;
+  border-radius: 16rpx;
+  border: 2rpx solid transparent;
+}
+.mgmt-btn.add {
+  background: linear-gradient(135deg, #1A365D 0%, #2D4A7A 100%);
+  color: #fff;
+}
+.mgmt-btn.del {
+  background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+  color: #fff;
+}
+.mgmt-btn:active {
+  opacity: 0.8;
+}
+.mgmt-icon {
+  font-size: 56rpx;
+  font-weight: 300;
+  line-height: 1;
+  margin-bottom: 12rpx;
+}
+.mgmt-lbl {
+  font-size: 28rpx;
+  font-weight: 500;
+  letter-spacing: 2rpx;
+}
+
+/* 设备列表项 */
+.device-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #E2E8F0;
+}
+.device-item:last-child {
+  border-bottom: none;
+}
+.device-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+.device-name {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #0F172A;
+}
+.device-id {
+  font-size: 24rpx;
+  color: #94A3B8;
+}
+
+.footer-tip {
+  text-align: center;
+  color: #94A3B8;
+  font-size: 22rpx;
+  padding: 60rpx 0 40rpx;
+}
+
+/* 退出登录按钮 - 红色描边 */
+.logout {
+  margin: 20rpx 40rpx 40rpx;
+  padding: 24rpx 0;
+  text-align: center;
+  background: #fff;
+  border: 1rpx solid #DC2626;
+  border-radius: 16rpx;
+  color: #DC2626;
+  font-size: 28rpx;
+}

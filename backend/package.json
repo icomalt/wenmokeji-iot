@@ -1,0 +1,16 @@
+{
+  "name": "inkjet-iot-backend",
+  "version": "1.0.0",
+  "description": "喷码机物联网云平台后端",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
+    "ws": "^8.13.0",
+    "cors": "^2.8.5"
+  }
+}

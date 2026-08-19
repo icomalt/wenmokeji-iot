@@ -1,0 +1,88 @@
+/* ================================================
+ * 设备列表页 - 红蓝工业风
+ * ================================================ */
+
+.search {
+  padding: 20rpx 28rpx;
+  margin-top: 24rpx;
+}
+
+.search-input {
+  height: 72rpx;
+  background: #F1F5F9;
+  border: 1rpx solid #E2E8F0;
+  border-radius: 36rpx;
+  padding: 0 32rpx;
+  font-size: 28rpx;
+  color: #0F172A;
+}
+
+/* 实时连接状态条 */
+.ws-status {
+  text-align: center;
+  font-size: 24rpx;
+  padding: 16rpx 0;
+  color: #fff;
+  letter-spacing: 2rpx;
+  font-weight: 500;
+}
+.ws-status.on {
+  background: linear-gradient(90deg, #10B981 0%, #059669 100%);
+}
+.ws-status.off {
+  background: linear-gradient(90deg, #DC2626 0%, #B91C1C 100%);
+}
+
+/* 列表项 - 设备卡片 */
+.item {
+  position: relative;
+  transition: transform 0.2s;
+}
+.item:active {
+  transform: scale(0.98);
+}
+
+.item-head {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.item-head .name {
+  font-size: 34rpx;
+  font-weight: bold;
+  flex: 1;
+  color: #0F172A;
+}
+
+.item-head .tag {
+  margin-left: 12rpx;
+}
+
+.item-row {
+  display: flex;
+  align-items: center;
+  margin: 10rpx 0;
+}
+
+.item-row.muted {
+  color: #64748B;
+  font-size: 26rpx;
+}
+
+.item-row .id {
+  margin-left: 20rpx;
+  color: #94A3B8;
+  font-size: 24rpx;
+}
+
+/* 列表项底部装饰线 */
+.item::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 28rpx;
+  right: 28rpx;
+  height: 1rpx;
+  background: #E2E8F0;
+}

@@ -1,0 +1,47 @@
+<!--
+  设备列表页（首页 / Tab）
+  功能：搜索 + 下拉刷新 + 上拉分页 + WS 实时状态推送 + 空数据判断 + 断网提示
+-->
+<view class="page">
+  <!-- 顶部搜索 -->
+  <view class="search card">
+    <input class="search-input" placeholder="搜索设备ID / 名称" value="{{keyword}}" bindinput="onSearchInput"/>
+  </view>
+
+  <!-- 实时连接状态条 -->
+  <view class="ws-status {{wsConnected ? 'on' : 'off'}}">
+    {{wsConnected ? '实时连接正常' : '实时连接断开，正在重连...'}}
+  </view>
+
+  <!-- 设备列表 -->
+  <view class="list">
+    <view wx:if="{{list.length === 0 && !loading}}" class="empty">
+      <text class="empty-icon">📭</text>
+      <text>暂无设备</text>
+      <text class="empty-tip">您的账号暂未关联任何设备，请联系管理员添加设备权限</text>
+    </view>
+
+    <view wx:for="{{list}}" wx:key="deviceId" class="card item" bindtap="goDetail" data-id="{{item.deviceId}}">
+      <view class="item-head">
+        <text class="name">{{item.deviceName}}</text>
+        <text class="tag {{item.onlineStatus === 1 ? 'tag-online' : 'tag-offline'}}">{{item.onlineStatus === 1 ? '在线' : '离线'}}</text>
+        <text wx:if="{{item.faultStatus === 1}}" class="tag tag-fault">故障</text>
+      </view>
+      <view class="item-row">
+        <text class="tag tag-type">{{item.deviceType}}</text>
+        <text class="id">ID：{{item.deviceId}}</text>
+      </view>
+      <view class="item-row muted">
+        <text>最近打印：{{item.printTime || '--'}}</text>
+      </view>
+      <view class="item-row muted ellipsis">
+        <text>内容：{{item.printContent || '--'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 分页加载提示 -->
+  <view wx:if="{{list.length > 0}}" class="load-tip">
+    {{hasMore ? '上拉加载更多...' : '没有更多了'}}
+  </view>
+</view>

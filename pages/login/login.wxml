@@ -1,0 +1,41 @@
+<!--
+  登录页
+  账号密码登录 → 云平台下发 token → 本地缓存 → 跳转设备列表
+-->
+<view class="login-wrap">
+  <!-- Logo 区域：文墨科技品牌 LOGO（横向铺满） -->
+  <view class="brand">
+    <!-- 方案1：预留图片位，横向铺满 -->
+    <image class="brand-logo" src="/images/logo.png" mode="widthFix" binderror="onLogoError" wx:if="{{logoExists}}"/>
+    <!-- 方案2：CSS 绘制的水墨风格 Logo -->
+    <view class="brand-fallback" wx:else>
+      <!-- 水墨笔触圆形背景 -->
+      <view class="ink-circle">
+        <view class="ink-brush brush-1"></view>
+        <view class="ink-brush brush-2"></view>
+        <view class="ink-brush brush-3"></view>
+        <text class="ink-char">墨</text>
+      </view>
+      <view class="logo-text">
+        <text class="logo-cn">文墨</text>
+        <view class="logo-tag">科技</view>
+      </view>
+    </view>
+  </view>
+  <view class="brand-sub">文墨喷码 · 物联网云平台</view>
+
+  <view class="form card">
+    <view class="form-item">
+      <text class="label">账号</text>
+      <input class="input" placeholder="请输入账号" value="{{username}}" bindinput="onInput" data-key="username"/>
+    </view>
+    <view class="form-item">
+      <text class="label">密码</text>
+      <input class="input" password placeholder="请输入密码" value="{{password}}" bindinput="onInput" data-key="password"/>
+    </view>
+    <button class="btn-primary" loading="{{loading}}" disabled="{{loading}}" bindtap="onLogin">登 录</button>
+  </view>
+
+  <view class="tip" wx:if="{{isMock}}">【演示模式】任意账号密码均可登录{{'\n'}}账号含 002 → 客户2（2台设备）{{'\n'}}账号含 003 → 客户3（无设备，测空数据）</view>
+  <view class="tip" wx:else>工业 IoT 云平台 · 请使用授权账号登录</view>
+</view>

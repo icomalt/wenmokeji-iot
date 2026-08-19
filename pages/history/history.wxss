@@ -1,0 +1,61 @@
+/* ================================================
+ * 历史记录页 - 红蓝工业风
+ * ================================================ */
+
+.filter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 28rpx;
+}
+
+.picker {
+  flex: 1;
+  color: #64748B;
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.picker.active {
+  color: #1A365D;
+}
+
+.clear {
+  color: #DC2626;
+  font-size: 26rpx;
+  padding-left: 24rpx;
+  font-weight: 500;
+}
+
+/* 列表项 */
+.item-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.r-time {
+  color: #1A365D;
+  font-size: 26rpx;
+  font-weight: 600;
+  letter-spacing: 1rpx;
+}
+
+.r-content {
+  background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+  border-radius: 12rpx;
+  padding: 20rpx;
+  margin: 12rpx 0;
+  word-break: break-all;
+  font-size: 28rpx;
+  color: #0F172A;
+  font-weight: 500;
+  line-height: 1.6;
+  border-left: 4rpx solid #DC2626;
+}
+
+.r-meta {
+  color: #64748B;
+  font-size: 24rpx;
+}

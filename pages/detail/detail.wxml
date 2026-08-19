@@ -1,0 +1,36 @@
+<!--
+  设备详情页
+  展示：基本信息 / 最近打印内容 / 实时设备参数（WS 推送） / 操作入口（下发打印 / 历史记录）
+-->
+<view class="page">
+  <!-- 加载中 -->
+  <view wx:if="{{!device && !loadDone}}" class="empty">
+    <text class="empty-icon">📡</text>设备信息加载中...
+  </view>
+
+  <!-- 不存在或无权限 -->
+  <view wx:elif="{{!device && loadDone}}" class="empty">
+    <text class="empty-icon">🚫</text>
+    <text>设备不存在</text>
+    <text class="empty-tip">该设备可能已被移除，或您暂无查看权限</text>
+  </view>
+
+  <block wx:else>
+    <!-- 基本信息 -->
+    <view class="card">
+      <view class="d-head">
+        <text class="d-name">{{device.deviceName}}</text>
+        <text class="tag {{device.onlineStatus === 1 ? 'tag-online' : 'tag-offline'}}">{{device.onlineStatus === 1 ? '在线' : '离线'}}</text>
+      </view>
+      <view class="d-row"><text class="muted">设备ID</text><text>{{device.deviceId}}</text></view>
+      <view class="d-row"><text class="muted">设备类型</text><text class="tag tag-type">{{device.deviceType}}</text></view>
+      <view class="d-row"><text class="muted">当前时间</text><text>{{currentTime}}</text></view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="actions">
+      <button class="btn-primary" bindtap="goPrint">下发打印</button>
+      <button class="btn-secondary" bindtap="goHistory">历史记录</button>
+    </view>
+  </block>
+</view>

@@ -1,0 +1,189 @@
+/* ================================================
+ * 登录页 - 红蓝工业风
+ * ================================================ */
+
+.login-wrap {
+  padding: 0;
+  min-height: 100vh;
+  background: #fff;
+}
+
+/* Logo 横铺时需要左右撑满，去掉左右 padding */
+.brand-wrap {
+  padding: 0;
+}
+
+.brand {
+  text-align: center;
+  margin-top: 0;
+  padding-top: 60rpx;
+  display: flex;
+  justify-content: center;
+}
+
+/* 预留图片位 - 横向铺满 */
+.brand-logo {
+  width: 100%;
+}
+
+/* CSS 绘制的水墨风格 Logo */
+.brand-fallback {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 20rpx;
+}
+
+/* 水墨笔触圆形背景 */
+.ink-circle {
+  position: relative;
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #1A365D 0%, #0F172A 70%, #000 100%);
+  box-shadow: 0 8rpx 24rpx rgba(26, 54, 93, 0.5), inset 0 4rpx 16rpx rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+}
+
+/* 水墨笔触（模拟毛笔飞白效果） */
+.ink-brush {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.6;
+}
+
+.brush-1 {
+  width: 80rpx;
+  height: 24rpx;
+  top: 30%;
+  left: 15%;
+  background: linear-gradient(90deg, transparent, #DC2626 30%, #DC2626 70%, transparent);
+  transform: rotate(-25deg);
+  filter: blur(2rpx);
+}
+
+.brush-2 {
+  width: 60rpx;
+  height: 16rpx;
+  top: 55%;
+  left: 25%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4) 40%, transparent);
+  transform: rotate(20deg);
+  filter: blur(1rpx);
+}
+
+.brush-3 {
+  width: 40rpx;
+  height: 12rpx;
+  top: 20%;
+  right: 20%;
+  background: linear-gradient(90deg, transparent, rgba(220, 38, 38, 0.6), transparent);
+  transform: rotate(45deg);
+  filter: blur(2rpx);
+}
+
+/* 中心水墨字 */
+.ink-char {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 64rpx;
+  font-weight: bold;
+  color: #ffffff;
+  font-family: "KaiTi", "STKaiti", "楷体", "FangSong", serif;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.6), 0 0 12rpx rgba(220, 38, 38, 0.4);
+  z-index: 2;
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.logo-cn {
+  font-size: 72rpx;
+  font-weight: bold;
+  color: #1A365D;
+  letter-spacing: 8rpx;
+  font-family: "KaiTi", "STKaiti", "楷体", "FangSong", serif;
+  text-shadow: 0 2rpx 8rpx rgba(26, 54, 93, 0.1);
+}
+
+.logo-tag {
+  background: #DC2626;
+  color: #fff;
+  font-size: 22rpx;
+  padding: 6rpx 14rpx;
+  border-radius: 6rpx;
+  font-weight: 500;
+  letter-spacing: 2rpx;
+  box-shadow: 0 4rpx 12rpx rgba(220, 38, 38, 0.4);
+}
+
+.brand-sub {
+  text-align: center;
+  font-size: 26rpx;
+  color: #64748B;
+  margin-top: 24rpx;
+  margin-bottom: 80rpx;
+  letter-spacing: 4rpx;
+}
+
+.form {
+  padding: 48rpx 36rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  box-shadow: 0 4rpx 24rpx rgba(15, 23, 42, 0.08);
+  border: 1rpx solid #E2E8F0;
+  margin: 0 48rpx;
+}
+
+.form-item {
+  display: flex;
+  align-items: center;
+  border-bottom: 2rpx solid #E2E8F0;
+  padding: 28rpx 0;
+  transition: border-color 0.3s;
+}
+
+.form-item:focus-within {
+  border-color: #DC2626;
+}
+
+.form-item .label {
+  width: 140rpx;
+  color: #64748B;
+  font-weight: 500;
+  font-size: 28rpx;
+}
+
+.form-item .input {
+  flex: 1;
+  height: 64rpx;
+  font-size: 28rpx;
+  color: #0F172A;
+}
+
+.btn-primary {
+  margin-top: 72rpx;
+  height: 96rpx;
+  line-height: 96rpx;
+  font-size: 32rpx;
+  letter-spacing: 8rpx;
+}
+
+.tip {
+  text-align: center;
+  color: #94A3B8;
+  font-size: 24rpx;
+  margin-top: 80rpx;
+  margin-left: 48rpx;
+  margin-right: 48rpx;
+  letter-spacing: 2rpx;
+  line-height: 1.8;
+  white-space: pre-line;
+}

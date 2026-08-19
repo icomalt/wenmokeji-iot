@@ -1,0 +1,72 @@
+<!--
+  首页（Tab）
+  功能：欢迎栏 + 设备统计概览 + 快捷功能入口
+  数据来源：/device/statistic
+-->
+<view class="page">
+  <!-- 顶部欢迎栏 -->
+  <view class="hero">
+    <view class="hero-brand">
+      <image class="hero-logo" src="/images/logo.png" mode="widthFix" binderror="onLogoError" wx:if="{{logoExists}}"/>
+      <view class="hero-logo-fallback" wx:else>
+        <view class="mini-ink">
+          <text class="mini-ink-char">墨</text>
+        </view>
+        <text class="hero-title">文墨喷码</text>
+      </view>
+    </view>
+    <view class="hero-sub">欢迎，{{username}}</view>
+  </view>
+
+  <!-- 统计卡片 -->
+  <view class="stat-grid">
+    <view class="stat-card" bindtap="goDevice">
+      <text class="stat-num">{{deviceStat.total || 0}}</text>
+      <text class="stat-lbl">设备总数</text>
+    </view>
+    <view class="stat-card online" bindtap="goDevice">
+      <text class="stat-num">{{deviceStat.online || 0}}</text>
+      <text class="stat-lbl">在线设备</text>
+    </view>
+    <view class="stat-card fault" bindtap="goDevice">
+      <text class="stat-num">{{deviceStat.fault || 0}}</text>
+      <text class="stat-lbl">故障设备</text>
+    </view>
+  </view>
+
+  <!-- 设备管理区域 -->
+  <view class="card">
+    <view class="card-title">设备管理</view>
+    <view class="mgmt-btns">
+      <view class="mgmt-btn add" bindtap="onAddDevice">
+        <text class="mgmt-icon">+</text>
+        <text class="mgmt-lbl">添加设备</text>
+      </view>
+      <view class="mgmt-btn del" bindtap="onDeleteDevice">
+        <text class="mgmt-icon">−</text>
+        <text class="mgmt-lbl">删除设备</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 设备列表 -->
+  <view class="card">
+    <view class="card-title">我的设备</view>
+    <view wx:if="{{deviceList.length === 0}}" class="empty">
+      <text class="empty-icon">📭</text>
+      <text>暂无设备</text>
+      <text class="empty-tip">请点击「添加设备」添加新设备</text>
+    </view>
+    <view wx:for="{{deviceList}}" wx:key="deviceId" class="device-item">
+      <view class="device-info">
+        <text class="device-name">{{item.deviceName}}</text>
+        <text class="device-id">{{item.deviceId}}</text>
+      </view>
+      <text class="tag tag-type">{{item.deviceType}}</text>
+    </view>
+  </view>
+
+  <view class="footer-tip">Industrial Inkjet IoT Cloud v1.0</view>
+
+  <view class="logout" bindtap="logout">退出登录</view>
+</view>
