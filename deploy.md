@@ -54,15 +54,22 @@ const CURRENT_ENV = 'dev'      // 开发环境，对接公司物联网平台（m
 | 接口 | 方法 | 路径 | 说明 |
 |------|------|------|------|
 | 验证码图片 | GET | /pub/captcha | 返回验证码图片（arraybuffer），同时下发 cookie |
-| 账号登录 | POST | /pub/login | body: { username, password, captcha }，需携带验证码 cookie，返回 JWT token |
+| 账号登录 | POST | /login | body: { user_name, user_password, verify_code, verify_key, lang }，返回 JWT token |
 | 登出 | POST | /auth/logout | 使后端 token 失效，前端清除本地缓存 |
 | 管理员验证 | POST | /auth/verify-admin | body: { password }，验证添加/删除设备权限 |
 
 **登录响应格式（平台实际）：**
 ```json
 {
-  "token": "eyJhbGciOiJIUzI1NiJ9...",
-  "user": { ... }
+  "code": 0,
+  "message": "",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiJ9...",
+    "user_name": "admin",
+    "user_nickname": "管理员",
+    "list": [...],
+    "version": "1.0"
+  }
 }
 ```
 > 平台采用 JWT Bearer token 鉴权，无 refreshToken 机制。JWT payload 中包含 User 对象（id、user_name、user_nickname、role_id、tenant_id 等字段），前端通过 decodeJwt 解码提取过期时间和用户信息。

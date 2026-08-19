@@ -1,7 +1,8 @@
 /**
  * 登录页逻辑 —— 对接公司物联网平台
- * 1. 进入拉取验证码图片（base64 方式，避免 cookie 跨域问题）
- * 2. 账号 + 密码 + 验证码 → 调用平台 /pub/login → 获取 JWT token
+ * 1. 进入拉取验证码图片（平台返回 JSON，含 verify_key + base64 图片）
+ * 2. 账号 + 密码 + 验证码 + verify_key → 调用平台 /api/v1/login → 获取 JWT token
+ *    平台参数名：user_name, user_password, verify_code, verify_key, lang
  * 3. 从 JWT 中解码用户信息，缓存 token/userInfo
  * 4. 全程异常捕获 + loading + toast
  */
@@ -36,30 +37,32 @@ Page({
     }
   },
 
-  // 获取验证码图片（base64 方式，同时保存 cookie）
+  // 获取验证码图片（平台返回 JSON：{ code:0, data: { verify_key, img } }）
   fetchCaptcha: function () {
     var that = this
     this.setData({ captchaLoading: true })
     wx.request({
       url: config.baseUrl + '/pub/captcha?t=' + Date.now(),
       method: 'GET',
-      responseType: 'arraybuffer',
       timeout: 10000,
       success: function (res) {
-        // 验证码图片转 base64
-        if (res.data && res.statusCode === 200) {
-          var base64 = wx.arrayBufferToBase64(res.data)
-          that.setData({
-            captchaImg: 'data:image/png;base64,' + base64,
-            captchaLoading: false
-          })
+        if (res.statusCode === 200 && res.data) {
+          var body = res.data || {}
+          // 平台返回格式：{ code:0, data: { verify_key, img } }
+          var captchaData = body.data || body
+          var img = captchaData.img || ''
+          var key = captchaData.verify_key || ''
+          if (img) {
+            that.setData({
+              captchaImg: img,  // img 已包含 data:image/png;base64, 前缀
+              captchaLoading: false
+            })
+          }
+          // 保存验证码 key（登录时提交，替代 cookie 方案）
+          that._captchaKey = key
+        } else {
+          that.setData({ captchaLoading: false })
         }
-        // 提取 cookie（用于登录时携带）
-        var cookie = ''
-        if (res.header) {
-          cookie = res.header['Set-Cookie'] || res.header['set-cookie'] || res.header['Cookie'] || ''
-        }
-        that._captchaCookie = cookie
       },
       fail: function () {
         that.setData({ captchaLoading: false })
@@ -101,42 +104,51 @@ Page({
 
     this.setData({ loading: true })
 
-    // 直接调用平台登录接口（需要携带验证码 cookie）
+    // 调用平台登录接口 /api/v1/login
+    // 平台参数：user_name, user_password, verify_code, verify_key, lang
     wx.request({
-      url: config.baseUrl + '/pub/login',
+      url: config.baseUrl + '/login',
       method: 'POST',
       data: {
-        username: username,
-        password: password,
-        captcha: captcha
+        user_name: username,
+        user_password: password,
+        verify_code: captcha,
+        verify_key: that._captchaKey || '',
+        lang: 'zh'
       },
       header: {
         'Content-Type': 'application/json',
-        'Cookie': that._captchaCookie || ''
+        'X-Requested-With': 'XMLHttpRequest'
       },
       timeout: config.requestTimeout,
       success: function (res) {
         if (res.statusCode === 200) {
           var body = res.data || {}
-          // 兼容多种返回格式
-          var token = body.token || (body.data && body.data.token) || ''
-          if (!token) {
+          // 平台返回格式：{ code:0, message:'', data: { token, user_name, user_nickname, ... } }
+          if (body.code !== 0) {
             wx.showToast({ title: body.message || '登录失败', icon: 'none' })
+            that.refreshCaptcha()
+            return
+          }
+          var dataObj = body.data || {}
+          var token = dataObj.token || ''
+          if (!token) {
+            wx.showToast({ title: '返回数据异常', icon: 'none' })
             that.refreshCaptcha()
             return
           }
           // 保存 JWT token（自动从 JWT 中解码过期时间）
           auth.setToken(token)
-          // 从 JWT 中解码用户信息
-          var userInfo = auth.decodeUserInfo() || {}
+          // 优先用响应数据中的用户信息，再从 JWT 中补充
+          var jwtUserInfo = auth.decodeUserInfo() || {}
           var displayInfo = {
-            id: userInfo.id,
-            username: userInfo.user_name || username,
-            name: userInfo.user_nickname || username,
-            mobile: userInfo.mobile,
-            roleId: userInfo.role_id,
-            address: userInfo.address,
-            tenantId: userInfo.tenant_id
+            id: jwtUserInfo.id,
+            username: dataObj.user_name || jwtUserInfo.user_name || username,
+            name: dataObj.user_nickname || jwtUserInfo.user_nickname || username,
+            mobile: jwtUserInfo.mobile,
+            roleId: jwtUserInfo.role_id,
+            address: jwtUserInfo.address,
+            tenantId: jwtUserInfo.tenant_id
           }
           auth.setUserInfo(displayInfo)
           // 记住账号
@@ -146,7 +158,7 @@ Page({
             wx.reLaunch({ url: '/pages/home/home' })
           }, 600)
         } else {
-          var msg = (res.data && res.data.message) || '登录失败'
+          var msg = (res.data && res.data.message) || '登录失败(' + res.statusCode + ')'
           wx.showToast({ title: msg, icon: 'none' })
           that.refreshCaptcha()
         }
