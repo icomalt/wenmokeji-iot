@@ -1,3 +1,8 @@
+/**
+ * 首页：设备统计卡片 + 设备列表 + 添加/删除设备入口
+ * 进入时拉取 /device/statistic 与 /device/list；onShow 每次刷新（含从其他页返回）。
+ * 添加/删除设备前会通过 /auth/verify-admin 校验管理员密码。
+ */
 const api = require('../../utils/request')
 const auth = require('../../utils/auth')
 const ws = require('../../utils/websocket')
