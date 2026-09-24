@@ -5,7 +5,8 @@ const jwt = require('jsonwebtoken')
 const config = require('./config')
 const store = require('./store')
 
-const PUBLIC_PATHS = ['/auth/login', '/auth/refresh']
+// 路由挂载在 /api/auth 下，子路径为 /login、/refresh
+const PUBLIC_PATHS = ['/login', '/refresh']
 
 function authMiddleware(req, res, next) {
   if (PUBLIC_PATHS.some(p => req.path.endsWith(p))) {

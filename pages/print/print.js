@@ -173,6 +173,8 @@ Page({
   // 下发
   onSubmit: function () {
     var that = this
+    // BUG-019 修复：入口防重入，避免双击重复提交
+    if (this.data.submitting) return
     var data = this.data
     var deviceId = data.deviceId
     var content = data.content
@@ -188,8 +190,16 @@ Page({
       wx.showToast({ title: '请输入打印内容', icon: 'none' })
       return
     }
+    if (content.length > 500) {
+      wx.showToast({ title: '打印内容不能超过 500 字', icon: 'none' })
+      return
+    }
     if (isNaN(count) || count < 1) {
       wx.showToast({ title: '喷印次数需为≥1的数字', icon: 'none' })
+      return
+    }
+    if (count > 99) {
+      wx.showToast({ title: '单次最多 99 次', icon: 'none' })
       return
     }
 

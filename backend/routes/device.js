@@ -8,6 +8,20 @@ const wsService = require('../ws')
 
 const router = express.Router()
 
+// BUG-008 兼容层：同时接受 snake_case 与 camelCase 字段
+// 前端发 device_id/font_size/print_count/page_num/page_size；后端历史代码用 deviceId/fontSize/count/page/pageSize
+function pick(body, query, camel, snake) {
+  if (body && body[camel] !== undefined) return body[camel]
+  if (body && body[snake] !== undefined) return body[snake]
+  if (query && query[camel] !== undefined) return query[camel]
+  if (query && query[snake] !== undefined) return query[snake]
+  return undefined
+}
+function clampPageSize(v) {
+  const n = parseInt(v) || config.defaultPageSize
+  return Math.min(Math.max(1, n), 100) // BUG-011: 上限 100
+}
+
 // 统计
 router.get('/statistic', function (req, res) {
   const devices = store.getDevicesByCustomer(req.user.customerId)
@@ -23,9 +37,9 @@ router.get('/statistic', function (req, res) {
 
 // 列表
 router.get('/list', function (req, res) {
-  const keyword = req.query.keyword || ''
-  const page = parseInt(req.query.page) || 1
-  const pageSize = parseInt(req.query.pageSize) || config.defaultPageSize
+  const keyword = req.query.keyword || req.query.device_name || ''
+  const page = parseInt(req.query.page || req.query.page_num) || 1
+  const pageSize = clampPageSize(req.query.pageSize || req.query.page_size)
   let devices = store.getDevicesByCustomer(req.user.customerId)
   if (keyword) {
     devices = devices.filter(d => d.deviceId.indexOf(keyword) !== -1 || d.deviceName.indexOf(keyword) !== -1)
@@ -36,7 +50,7 @@ router.get('/list', function (req, res) {
 
 // 详情
 router.get('/detail', function (req, res) {
-  const deviceId = req.query.deviceId
+  const deviceId = req.query.deviceId || req.query.device_id
   if (!deviceId) return res.json({ code: 1, message: '缺少 deviceId', data: null })
   if (!store.isDeviceOwnedByCustomer(deviceId, req.user.customerId)) {
     return res.json({ code: 1, message: '设备不存在或无权访问', data: null })
@@ -46,9 +60,17 @@ router.get('/detail', function (req, res) {
   res.json({ code: 0, message: 'success', data: { device } })
 })
 
+// BUG-002 修复：添加/删除设备必须是管理员
+function requireAdmin(req, res, next) {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ code: 403, message: '需要管理员权限', data: null })
+  }
+  next()
+}
+
 // 添加设备
-router.post('/add', function (req, res) {
-  const { deviceId } = req.body
+router.post('/add', requireAdmin, function (req, res) {
+  const deviceId = pick(req.body, null, 'deviceId', 'device_id')
   if (!deviceId) return res.json({ code: 1, message: '请输入设备ID', data: null })
   const device = store.getDeviceById(deviceId)
   if (!device) return res.json({ code: 1, message: '设备不存在于平台', data: null })
@@ -61,8 +83,8 @@ router.post('/add', function (req, res) {
 })
 
 // 删除设备
-router.post('/delete', function (req, res) {
-  const { deviceId } = req.body
+router.post('/delete', requireAdmin, function (req, res) {
+  const deviceId = pick(req.body, null, 'deviceId', 'device_id')
   if (!deviceId) return res.json({ code: 1, message: '缺少 deviceId', data: null })
   if (!store.isDeviceOwnedByCustomer(deviceId, req.user.customerId)) {
     return res.json({ code: 1, message: '设备不存在或无权操作', data: null })
@@ -74,11 +96,17 @@ router.post('/delete', function (req, res) {
 
 // 打印下发
 router.post('/print/dispatch', function (req, res) {
-  const { deviceId, content, fontSize, count, immediate } = req.body
+  const deviceId = pick(req.body, null, 'deviceId', 'device_id')
+  const content = req.body.content
+  const countRaw = pick(req.body, null, 'count', 'print_count')
+  const immediate = req.body.immediate
   if (!deviceId) return res.json({ code: 1, message: '缺少 deviceId', data: null })
   if (!content) return res.json({ code: 1, message: '请输入打印内容', data: null })
-  const numCount = Number(count)
+  // BUG-010: 内容长度上限 500，次数上限 99
+  if (content.length > 500) return res.json({ code: 1, message: '打印内容不能超过 500 字', data: null })
+  const numCount = Number(countRaw)
   if (isNaN(numCount) || numCount < 1) return res.json({ code: 1, message: '打印次数需为≥1的数字', data: null })
+  if (numCount > 99) return res.json({ code: 1, message: '单次打印次数不能超过 99', data: null })
   if (!store.isDeviceOwnedByCustomer(deviceId, req.user.customerId)) {
     return res.json({ code: 1, message: '设备不存在或无权操作', data: null })
   }
@@ -99,14 +127,16 @@ router.post('/print/dispatch', function (req, res) {
 
 // 打印历史
 router.get('/print/history', function (req, res) {
-  const deviceId = req.query.deviceId
-  const page = parseInt(req.query.page) || 1
-  const pageSize = parseInt(req.query.pageSize) || config.defaultPageSize
+  const deviceId = req.query.deviceId || req.query.device_id
+  const page = parseInt(req.query.page || req.query.page_num) || 1
+  const pageSize = clampPageSize(req.query.pageSize || req.query.page_size)
+  const date = req.query.date // BUG-016: 日期筛选
   if (!deviceId) return res.json({ code: 1, message: '缺少 deviceId', data: null })
   if (!store.isDeviceOwnedByCustomer(deviceId, req.user.customerId)) {
     return res.json({ code: 1, message: '设备不存在或无权访问', data: null })
   }
-  res.json({ code: 0, message: 'success', data: store.getHistoryByDevice(deviceId, page, pageSize) })
+  const result = store.getHistoryByDevice(deviceId, page, pageSize, date)
+  res.json({ code: 0, message: 'success', data: result })
 })
 
 module.exports = router

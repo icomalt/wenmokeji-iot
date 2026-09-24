@@ -89,8 +89,12 @@ function addHistoryRecord(record) {
   printHistory.unshift(record)
 }
 
-function getHistoryByDevice(deviceId, page, pageSize) {
-  const list = printHistory.filter(r => r.deviceId === deviceId)
+function getHistoryByDevice(deviceId, page, pageSize, date) {
+  let list = printHistory.filter(r => r.deviceId === deviceId)
+  // BUG-016: 按日期（YYYY-MM-DD）筛选
+  if (date) {
+    list = list.filter(r => typeof r.printTime === 'string' && r.printTime.indexOf(date) === 0)
+  }
   const start = (page - 1) * pageSize
   return { list: list.slice(start, start + pageSize), total: list.length }
 }

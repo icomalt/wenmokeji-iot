@@ -9,8 +9,25 @@ const wsService = require('../ws')
 
 const router = express.Router()
 
+// BUG-007 修复：登录接口简单内存限流（同 IP 窗口内失败次数限制）
+const loginAttempts = new Map()
+function loginRateLimit(req, res, next) {
+  const ip = (req.headers['x-forwarded-for'] || req.ip || 'unknown').toString().split(',')[0].trim()
+  const now = Date.now()
+  const win = config.loginRateWindow
+  const max = config.loginRateMax
+  const rec = loginAttempts.get(ip) || { count: 0, first: now }
+  if (now - rec.first > win) { rec.count = 0; rec.first = now }
+  rec.count++
+  loginAttempts.set(ip, rec)
+  if (rec.count > max) {
+    return res.status(429).json({ code: 429, message: '尝试过于频繁，请 ' + Math.ceil(win / 60000) + ' 分钟后再试', data: null })
+  }
+  next()
+}
+
 // 登录
-router.post('/login', function (req, res) {
+router.post('/login', loginRateLimit, function (req, res) {
   const { username, password } = req.body
   if (!username || !password) {
     return res.json({ code: 1, message: '账号和密码不能为空', data: null })

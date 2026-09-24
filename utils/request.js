@@ -66,6 +66,12 @@ if (config.mock) {
     const { url, method = 'GET', data = {}, header = {}, loading = true, retry = config.retryTimes, _isRefreshRetry = false } = options
     const fullUrl = url.indexOf('http') === 0 ? url : config.baseUrl + url
 
+    // BUG-004 修复：写操作（POST/PUT/DELETE/PATCH）不自动重试，避免重复下发打印等副作用。
+    // 只有幂等的 GET/HEAD 才允许自动重试。
+    const methodUpper = (method || 'GET').toUpperCase()
+    const idempotent = (methodUpper === 'GET' || methodUpper === 'HEAD')
+    const effectiveRetry = idempotent ? retry : 0
+
     // 组装请求头
     const finalHeader = Object.assign({ 'Content-Type': 'application/json' }, header)
     const token = auth.getToken()
@@ -100,11 +106,11 @@ if (config.mock) {
 
           // HTTP 层错误
           if (res.statusCode < 200 || res.statusCode >= 300) {
-            // 5xx 服务器错误，可重试
-            if (res.statusCode >= 500 && retry > 0) {
-              console.warn('[request] 服务器错误 ' + res.statusCode + '，' + config.retryDelay + 'ms 后重试（剩余 ' + retry + ' 次）')
+            // 5xx 服务器错误，仅幂等请求可重试（BUG-004）
+            if (res.statusCode >= 500 && effectiveRetry > 0) {
+              console.warn('[request] 服务器错误 ' + res.statusCode + '，' + config.retryDelay + 'ms 后重试（剩余 ' + effectiveRetry + ' 次）')
               setTimeout(function () {
-                resolve(doRealRequest(Object.assign({}, options, { retry: retry - 1 })))
+                resolve(doRealRequest(Object.assign({}, options, { retry: effectiveRetry - 1 })))
               }, config.retryDelay)
               return
             }
@@ -130,11 +136,11 @@ if (config.mock) {
         fail: function (err) {
           if (loading) wx.hideLoading()
 
-          // 网络失败（非主动取消），可重试
-          if (retry > 0 && (!err.errMsg || err.errMsg.indexOf('cancel') === -1)) {
-            console.warn('[request] 请求失败，' + config.retryDelay + 'ms 后重试（剩余 ' + retry + ' 次）:', url)
+          // 网络失败（非主动取消），仅幂等请求可重试（BUG-004）
+          if (effectiveRetry > 0 && (!err.errMsg || err.errMsg.indexOf('cancel') === -1)) {
+            console.warn('[request] 请求失败，' + config.retryDelay + 'ms 后重试（剩余 ' + effectiveRetry + ' 次）:', url)
             setTimeout(function () {
-              resolve(doRealRequest(Object.assign({}, options, { retry: retry - 1 })))
+              resolve(doRealRequest(Object.assign({}, options, { retry: effectiveRetry - 1 })))
             }, config.retryDelay)
             return
           }

@@ -200,8 +200,19 @@ module.exports = {
     var token = this.getToken()
     if (!token) return null
     var payload = decodeJwt(token)
-    if (payload && payload.User) {
-      return payload.User
+    if (!payload) return null
+    // BUG-009 修复：兼容多种 JWT 字段命名（本地后端为顶层 userId/username；公司平台可能为 User/user/userInfo）
+    if (payload.User && typeof payload.User === 'object') return payload.User
+    if (payload.user && typeof payload.user === 'object') return payload.user
+    if (payload.userInfo && typeof payload.userInfo === 'object') return payload.userInfo
+    if (payload.username || payload.userId) {
+      return {
+        userId: payload.userId,
+        username: payload.username,
+        name: payload.name || payload.user_name || payload.username,
+        role: payload.role,
+        customerId: payload.customerId
+      }
     }
     return null
   },
