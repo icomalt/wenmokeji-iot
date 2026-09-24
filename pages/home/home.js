@@ -1,48 +1,20 @@
 const api = require('../../utils/request')
 const auth = require('../../utils/auth')
 const ws = require('../../utils/websocket')
-
-/**
- * 将平台设备数据映射为前端统一格式
- * 平台字段：dev_id, device_name, product_model, status, status_str, ...
- */
-function mapDevice(d) {
-  if (!d) return null
-  return {
-    deviceId: d.dev_id || d.deviceId || '',
-    deviceName: d.device_name || d.deviceName || '未命名设备',
-    deviceType: d.product_model || d.deviceType || '未知型号',
-    onlineStatus: d.status !== undefined ? d.status : (d.onlineStatus !== undefined ? d.onlineStatus : 0),
-    statusText: d.status_str || d.statusText || (d.status === 2 ? '在线' : '离线'),
-    imei: d.imei || '',
-    lastLogin: d.last_login || d.lastLogin || '',
-    onlineDuration: d.online_duration || '',
-    lesseeName: d.lessee_name || '',
-    customerName: d.user_nickname || '',
-    firmwareVersion: d.dmc_ver || '',
-    cpu: d.cpu || '',
-    memoryUsage: d.mem_usage || '',
-    signalStrength: d.csq !== undefined ? d.csq : '',
-    iccid: d.iccid || '',
-    batteryVoltage: d.m4g_vbat || '',
-    latitude: d.lat || '',
-    longitude: d.lon || ''
-  }
-}
+const config = require('../../utils/config')
+const deviceMapper = require('../../utils/deviceMapper')
 
 Page({
   data: {
     username: '',
-    deviceStat: { total: 0, online: 0, offline: 0 },
+    deviceStat: { total: 0, online: 0, offline: 0, fault: 0 },
     deviceList: [],
     logoExists: true
   },
 
   onLoad: function () {
-    var userInfo = auth.getUserInfo() || {}
-    this.setData({ username: userInfo.name || userInfo.username || '用户' })
-    // 订阅 WebSocket（如有）
-    if (ws.subscribe) {
+    // 只有配置了 wsUrl 才订阅 WebSocket（公司平台暂无 WebSocket）
+    if (config.wsUrl && ws.subscribe) {
       this._wsHandler = (msg) => this.handleWsMessage(msg)
       ws.subscribe(this._wsHandler)
     }
@@ -80,6 +52,10 @@ Page({
   },
 
   onShow: function () {
+    // 每次进入页面刷新用户名
+    var userInfo = auth.getUserInfo() || {}
+    var username = userInfo.name || userInfo.username || '用户'
+    this.setData({ username: username })
     this.loadDeviceList()
   },
 
@@ -93,27 +69,35 @@ Page({
   // 加载设备列表（从设备列表接口获取，前端计算统计）
   loadDeviceList: function () {
     var that = this
-    return api.get('/device/list', { page_num: 1, page_size: 100 }, { loading: false })
+    // 使用较大的 page_size 获取所有设备用于统计（类似Web平台的10000）
+    return api.get('/device/list', { page_num: 1, page_size: 10000 }, { loading: false })
       .then(function (res) {
-        // 兼容多种返回结构
-        var rawList = res.list || res.rows || res.data || res || []
-        if (!Array.isArray(rawList)) rawList = []
-        // 映射字段
-        var list = rawList.map(mapDevice).filter(function (d) { return d !== null })
+        // 使用统一的解析方法
+        var result = deviceMapper.parseDeviceListResponse(res)
+        var list = result.list
+        var total = result.total
+        
         // 计算统计
-        var online = 0
-        var offline = 0
-        list.forEach(function (d) {
-          if (d.onlineStatus === 2 || d.onlineStatus === 1) online++
-          else offline++
-        })
+        var stats = deviceMapper.calculateStats(list)
+        
+        // 首页只显示前10台设备
+        var displayList = list.slice(0, 10)
         that.setData({
-          deviceList: list,
-          deviceStat: { total: list.length, online: online, offline: offline }
+          deviceList: displayList,
+          deviceStat: { 
+            total: total || stats.total, 
+            online: stats.online, 
+            offline: stats.offline, 
+            fault: stats.fault 
+          }
         })
       })
-      .catch(function () {
-        that.setData({ deviceList: [], deviceStat: { total: 0, online: 0, offline: 0 } })
+      .catch(function (err) {
+        console.error('[home] loadDeviceList error:', err)
+        that.setData({ 
+          deviceList: [], 
+          deviceStat: { total: 0, online: 0, offline: 0, fault: 0 } 
+        })
       })
   },
 
@@ -225,6 +209,16 @@ Page({
 
   goDevice: function () {
     wx.switchTab({ url: '/pages/device/device' })
+  },
+
+  // 跳转到设备详情
+  goDetail: function (e) {
+    var id = e.currentTarget.dataset.id
+    if (!id) {
+      wx.showToast({ title: '设备ID无效', icon: 'none' })
+      return
+    }
+    wx.navigateTo({ url: '/pages/detail/detail?id=' + id })
   },
 
   onShareAppMessage: function () {

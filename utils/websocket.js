@@ -170,8 +170,11 @@ function connect() {
     console.warn('[WS] 无 token，跳过连接')
     return
   }
-  // 不再在 URL 中携带 token，避免日志/代理泄露
   const url = config.wsUrl
+  if (!url) {
+    console.warn('[WS] wsUrl 未配置，跳过连接')
+    return
+  }
 
   // 启动连接超时检测
   startConnectTimeout()

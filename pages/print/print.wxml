@@ -1,6 +1,6 @@
 <!--
   打印下发页
-  功能：输入打印内容 + 字体大小 + 喷印次数 + 是否立即执行 → 下发到目标设备
+  功能：输入打印内容 + 插入时间（自由格式配置）+ 字体大小 + 喷印次数 + 是否立即执行 → 下发到目标设备
 -->
 <view class="page">
   <view class="card">
@@ -16,7 +16,10 @@
       <text class="form-label">打印内容</text>
       <textarea class="textarea" placeholder="请输入需喷印的文本内容"
         value="{{content}}" bindinput="onInput" data-key="content" maxlength="200"/>
-      <view class="count">{{content.length}}/200</view>
+      <view class="content-actions">
+        <view class="count">{{content.length}}/200</view>
+        <view class="insert-time-btn" bindtap="openTimeModal">插入时间</view>
+      </view>
     </view>
 
     <!-- 字体大小 -->
@@ -40,5 +43,82 @@
 
   <view class="actions">
     <button class="btn-primary" loading="{{submitting}}" disabled="{{submitting}}" bindtap="onSubmit">下发</button>
+  </view>
+
+  <!-- 时间格式配置弹窗 -->
+  <view class="modal-mask" wx:if="{{showTimeModal}}" bindtap="closeTimeModal">
+    <view class="modal-content" catchtap="">
+      <view class="modal-header">
+        <text class="modal-title">时间格式</text>
+        <text class="modal-close" bindtap="closeTimeModal">×</text>
+      </view>
+
+      <view class="modal-preview">
+        <text class="muted">时分格式预览</text>
+        <text class="preview-value">{{timePreview}}</text>
+      </view>
+
+      <!-- 第一行：年 月 日 -->
+      <view class="format-row">
+        <view class="format-item">
+          <text class="format-label">年份格式</text>
+          <picker mode="selector" range="{{yearOptions}}" value="{{yearIdx}}" bindchange="onYearChange">
+            <view class="picker-box">{{yearOptions[yearIdx]}}</view>
+          </picker>
+        </view>
+        <view class="format-item">
+          <text class="format-label">月份格式</text>
+          <picker mode="selector" range="{{partOptions}}" value="{{monthIdx}}" bindchange="onMonthChange">
+            <view class="picker-box">{{partOptions[monthIdx]}}</view>
+          </picker>
+        </view>
+        <view class="format-item">
+          <text class="format-label">日期格式</text>
+          <picker mode="selector" range="{{partOptions}}" value="{{dayIdx}}" bindchange="onDayChange">
+            <view class="picker-box">{{partOptions[dayIdx]}}</view>
+          </picker>
+        </view>
+      </view>
+
+      <!-- 第二行：时 分 秒 -->
+      <view class="format-row">
+        <view class="format-item">
+          <text class="format-label">小时格式</text>
+          <picker mode="selector" range="{{partOptions}}" value="{{hourIdx}}" bindchange="onHourChange">
+            <view class="picker-box">{{partOptions[hourIdx]}}</view>
+          </picker>
+        </view>
+        <view class="format-item">
+          <text class="format-label">分钟格式</text>
+          <picker mode="selector" range="{{partOptions}}" value="{{minuteIdx}}" bindchange="onMinuteChange">
+            <view class="picker-box">{{partOptions[minuteIdx]}}</view>
+          </picker>
+        </view>
+        <view class="format-item">
+          <text class="format-label">秒格式</text>
+          <picker mode="selector" range="{{partOptions}}" value="{{secondIdx}}" bindchange="onSecondChange">
+            <view class="picker-box">{{partOptions[secondIdx]}}</view>
+          </picker>
+        </view>
+      </view>
+
+      <!-- 第三行：连接符 -->
+      <view class="format-row">
+        <view class="format-item">
+          <text class="format-label">年月日连接符</text>
+          <input class="separator-input" value="{{dateSeparator}}" bindinput="onDateSeparatorInput"/>
+        </view>
+        <view class="format-item">
+          <text class="format-label">时分秒连接符</text>
+          <input class="separator-input" value="{{timeSeparator}}" bindinput="onTimeSeparatorInput"/>
+        </view>
+      </view>
+
+      <!-- 按钮 -->
+      <view class="modal-buttons">
+        <view class="modal-btn confirm" bindtap="confirmTimeFormat">确定</view>
+        <view class="modal-btn cancel" bindtap="closeTimeModal">取消</view>
+      </view>
+    </view>
   </view>
 </view>

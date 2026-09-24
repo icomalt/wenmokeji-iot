@@ -29,8 +29,8 @@
       <text class="stat-lbl">在线设备</text>
     </view>
     <view class="stat-card fault" bindtap="goDevice">
-      <text class="stat-num">{{deviceStat.fault || 0}}</text>
-      <text class="stat-lbl">故障设备</text>
+      <text class="stat-num">{{deviceStat.offline || 0}}</text>
+      <text class="stat-lbl">离线设备</text>
     </view>
   </view>
 
@@ -57,12 +57,16 @@
       <text>暂无设备</text>
       <text class="empty-tip">请点击「添加设备」添加新设备</text>
     </view>
-    <view wx:for="{{deviceList}}" wx:key="deviceId" class="device-item">
+    <view wx:for="{{deviceList}}" wx:key="deviceId" class="device-item" bindtap="goDetail" data-id="{{item.deviceId}}">
       <view class="device-info">
         <text class="device-name">{{item.deviceName}}</text>
         <text class="device-id">{{item.deviceId}}</text>
+        <text class="device-lessee">租户：{{item.lesseeName || '--'}}</text>
       </view>
-      <text class="tag tag-type">{{item.deviceType}}</text>
+      <view class="device-tags">
+        <text class="tag tag-type">{{item.deviceType}}</text>
+        <text class="tag {{item.onlineStatus === 2 ? 'tag-online' : (item.onlineStatus === 1 ? 'tag-fault' : 'tag-offline')}}">{{item.statusText || '离线'}}</text>
+      </view>
     </view>
   </view>
 

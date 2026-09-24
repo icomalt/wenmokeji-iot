@@ -4,58 +4,15 @@
  * 功能：
  *  1. 自动拼接 baseUrl，统一携带 token 鉴权（Authorization: Bearer xxx）
  *  2. 全局 loading（可通过 loading:false 关闭）
- *  3. 401 自动刷新 token 并重发原请求（refreshToken 机制）
- *  4. 过期前主动刷新（tokenRefreshThreshold 控制）
- *  5. 请求失败自动重试（retryTimes 次，retryDelay 间隔）
- *  6. 可配置请求超时（requestTimeout）
- *  7. 断网 / 超时统一 toast 提示
- *  8. 业务层约定：返回体 { code, message, data }，code===0 为成功
- *  9. Mock 模式：config.mock=true 时，拦截所有请求返回本地模拟数据
- *
- * 【多实例 token 刷新】
- *   当多个请求同时返回 401 时，只触发一次 refreshToken，
- *   其余请求挂起等待新 token 后自动重发，避免刷新风暴。
+ *  3. 401 直接清除登录态并跳转登录页（平台无 refreshToken 机制）
+ *  4. 请求失败自动重试（retryTimes 次，retryDelay 间隔）
+ *  5. 可配置请求超时（requestTimeout）
+ *  6. 断网 / 超时统一 toast 提示
+ *  7. 业务层约定：返回体 { code, message, data }，code===0 或 200 为成功
+ *  8. Mock 模式：config.mock=true 时，拦截所有请求返回本地模拟数据
  */
 const config = require('./config')
 const auth = require('./auth')
-
-// ============ Token 刷新队列控制 ============
-let isRefreshing = false          // 是否正在刷新 token
-let pendingRequests = []          // 等待 token 刷新完成后重发的请求队列
-
-/**
- * 执行 token 刷新流程
- * @returns {Promise<string>} 新 token
- */
-function doRefreshToken() {
-  if (isRefreshing) {
-    // 已经在刷新，返回等待中的 Promise
-    return new Promise(function (resolve, reject) {
-      pendingRequests.push({ resolve: resolve, reject: reject })
-    })
-  }
-  isRefreshing = true
-
-  return auth.refreshToken().then(function (newToken) {
-    // 通知所有等待者：刷新成功
-    pendingRequests.forEach(function (p) { p.resolve(newToken) })
-    pendingRequests = []
-    isRefreshing = false
-    return newToken
-  }).catch(function (err) {
-    // 刷新失败（refreshToken 过期或无效）：清除登录态
-    auth.clear()
-    wx.showToast({ title: '登录已失效，请重新登录', icon: 'none' })
-    setTimeout(function () {
-      wx.reLaunch({ url: '/pages/login/login' })
-    }, 1000)
-    // 通知所有等待者：刷新失败
-    pendingRequests.forEach(function (p) { p.reject(err) })
-    pendingRequests = []
-    isRefreshing = false
-    throw err
-  })
-}
 
 // ============ Mock 模式 ============
 if (config.mock) {
@@ -191,19 +148,10 @@ if (config.mock) {
   }
 
   /**
-   * 对外暴露的 request 入口（增加 token 即将过期主动检查）
+   * 对外暴露的 request 入口
+   * 平台无 refreshToken 机制，401 时在 doRealRequest 中直接跳转登录页
    */
   function request(options) {
-    // 非 mock 模式下，如果 token 即将过期，先主动刷新再发请求
-    if (auth.needRefresh && auth.needRefresh()) {
-      console.log('[request] token 即将过期，主动刷新')
-      return doRefreshToken().then(function () {
-        return doRealRequest(options)
-      }).catch(function () {
-        // 主动刷新失败仍然继续尝试原请求（让原请求的 401 逻辑兜底）
-        return doRealRequest(options)
-      })
-    }
     return doRealRequest(options)
   }
 

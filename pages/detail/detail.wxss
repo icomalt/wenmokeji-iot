@@ -56,6 +56,16 @@
   line-height: 1.6;
 }
 
+/* 卡片标题 */
+.card-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #1A365D;
+  margin-bottom: 16rpx;
+  padding-left: 16rpx;
+  border-left: 6rpx solid #DC2626;
+}
+
 /* 操作按钮组 */
 .actions {
   padding: 40rpx 24rpx;
@@ -78,8 +88,69 @@
 
 .btn-primary {
   margin-bottom: 0;
+  background: linear-gradient(135deg, #1A365D 0%, #2D4A7A 100%);
+  color: #fff;
+  border: none;
+  border-radius: 16rpx;
+  padding: 24rpx 0;
+  font-size: 30rpx;
+  font-weight: 500;
+}
+
+.btn-secondary {
+  margin-bottom: 0;
+  background: #fff;
+  color: #1A365D;
+  border: 2rpx solid #1A365D;
+  border-radius: 16rpx;
+  padding: 24rpx 0;
+  font-size: 30rpx;
+  font-weight: 500;
 }
 
 .btn-ghost {
   margin-bottom: 0;
+}
+
+/* 标签样式 */
+.tag {
+  display: inline-block;
+  padding: 6rpx 16rpx;
+  border-radius: 8rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+}
+.tag-type {
+  background: #EFF6FF;
+  color: #1A365D;
+}
+.tag-online {
+  background: #ECFDF5;
+  color: #059669;
+}
+.tag-offline {
+  background: #F1F5F9;
+  color: #64748B;
+}
+.tag-fault {
+  background: #FEF2F2;
+  color: #DC2626;
+}
+
+/* 空数据提示 */
+.empty {
+  text-align: center;
+  padding: 60rpx 0;
+  color: #64748B;
+}
+.empty-icon {
+  font-size: 80rpx;
+  display: block;
+  margin-bottom: 20rpx;
+}
+.empty-tip {
+  display: block;
+  font-size: 24rpx;
+  color: #94A3B8;
+  margin-top: 12rpx;
 }

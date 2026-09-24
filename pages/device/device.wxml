@@ -8,8 +8,8 @@
     <input class="search-input" placeholder="搜索设备ID / 名称" value="{{keyword}}" bindinput="onSearchInput"/>
   </view>
 
-  <!-- 实时连接状态条 -->
-  <view class="ws-status {{wsConnected ? 'on' : 'off'}}">
+  <!-- 实时连接状态条（仅在配置了 WebSocket 时显示） -->
+  <view wx:if="{{wsEnabled}}" class="ws-status {{wsConnected ? 'on' : 'off'}}">
     {{wsConnected ? '实时连接正常' : '实时连接断开，正在重连...'}}
   </view>
 
@@ -24,18 +24,14 @@
     <view wx:for="{{list}}" wx:key="deviceId" class="card item" bindtap="goDetail" data-id="{{item.deviceId}}">
       <view class="item-head">
         <text class="name">{{item.deviceName}}</text>
-        <text class="tag {{item.onlineStatus === 1 ? 'tag-online' : 'tag-offline'}}">{{item.onlineStatus === 1 ? '在线' : '离线'}}</text>
-        <text wx:if="{{item.faultStatus === 1}}" class="tag tag-fault">故障</text>
+        <text class="tag {{item.onlineStatus === 2 ? 'tag-online' : (item.onlineStatus === 1 ? 'tag-fault' : 'tag-offline')}}">{{item.statusText || (item.onlineStatus === 2 ? '在线' : (item.onlineStatus === 1 ? '故障' : '离线'))}}</text>
       </view>
       <view class="item-row">
         <text class="tag tag-type">{{item.deviceType}}</text>
         <text class="id">ID：{{item.deviceId}}</text>
       </view>
       <view class="item-row muted">
-        <text>最近打印：{{item.printTime || '--'}}</text>
-      </view>
-      <view class="item-row muted ellipsis">
-        <text>内容：{{item.printContent || '--'}}</text>
+        <text>租户：{{item.lesseeName || '--'}}</text>
       </view>
     </view>
   </view>

@@ -86,3 +86,54 @@
   height: 1rpx;
   background: #E2E8F0;
 }
+
+/* 标签样式 */
+.tag {
+  display: inline-block;
+  padding: 6rpx 16rpx;
+  border-radius: 8rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+}
+.tag-type {
+  background: #EFF6FF;
+  color: #1A365D;
+}
+.tag-online {
+  background: #ECFDF5;
+  color: #059669;
+}
+.tag-offline {
+  background: #F1F5F9;
+  color: #64748B;
+}
+.tag-fault {
+  background: #FEF2F2;
+  color: #DC2626;
+}
+
+/* 空数据提示 */
+.empty {
+  text-align: center;
+  padding: 60rpx 0;
+  color: #64748B;
+}
+.empty-icon {
+  font-size: 80rpx;
+  display: block;
+  margin-bottom: 20rpx;
+}
+.empty-tip {
+  display: block;
+  font-size: 24rpx;
+  color: #94A3B8;
+  margin-top: 12rpx;
+}
+
+/* 加载提示 */
+.load-tip {
+  text-align: center;
+  padding: 32rpx 0;
+  color: #94A3B8;
+  font-size: 24rpx;
+}

@@ -3,39 +3,13 @@
  * 1. 进入即拉取设备列表
  * 2. 下拉刷新（重置第一页）/ 上拉分页加载
  * 3. 关键字搜索（带防抖）
- * 4. 字段映射：平台 dev_id/device_name/product_model/status → 前端统一格式
+ * 4. 使用统一的 deviceMapper 进行字段映射
  * 5. 空数据判断 + loading + 断网提示
  */
 const api = require('../../utils/request')
 const ws = require('../../utils/websocket')
 const config = require('../../utils/config')
-
-/**
- * 将平台设备数据映射为前端统一格式
- */
-function mapDevice(d) {
-  if (!d) return null
-  return {
-    deviceId: d.dev_id || d.deviceId || '',
-    deviceName: d.device_name || d.deviceName || '未命名设备',
-    deviceType: d.product_model || d.deviceType || '未知型号',
-    onlineStatus: d.status !== undefined ? d.status : (d.onlineStatus !== undefined ? d.onlineStatus : 0),
-    statusText: d.status_str || d.statusText || (d.status === 2 ? '在线' : '离线'),
-    imei: d.imei || '',
-    lastLogin: d.last_login || d.lastLogin || '',
-    onlineDuration: d.online_duration || '',
-    lesseeName: d.lessee_name || '',
-    customerName: d.user_nickname || '',
-    firmwareVersion: d.dmc_ver || '',
-    cpu: d.cpu || '',
-    memoryUsage: d.mem_usage || '',
-    signalStrength: d.csq !== undefined ? d.csq : '',
-    iccid: d.iccid || '',
-    batteryVoltage: d.m4g_vbat || '',
-    latitude: d.lat || '',
-    longitude: d.lon || ''
-  }
-}
+const deviceMapper = require('../../utils/deviceMapper')
 
 Page({
   data: {
@@ -45,21 +19,21 @@ Page({
     pageSize: config.pageSize,
     hasMore: true,
     loading: false,
-    wsConnected: false
+    wsConnected: false,
+    wsEnabled: !!config.wsUrl  // 公司平台暂无 WebSocket，根据配置决定是否显示连接状态
   },
 
   onLoad: function () {
-    this.fetchList(true)
-    if (ws.subscribe) {
+    // 只有配置了 wsUrl 才订阅 WebSocket（公司平台暂无 WebSocket）
+    if (config.wsUrl && ws.subscribe) {
       this._wsHandler = (msg) => this.handleWsMessage(msg)
       ws.subscribe(this._wsHandler)
     }
   },
 
   onShow: function () {
-    if (this.data.list.length > 0) {
-      this.fetchList(true)
-    }
+    // 统一在 onShow 中加载设备列表，确保每次进入页面都刷新数据
+    this.fetchList(true)
   },
 
   onPullDownRefresh: function () {
@@ -102,13 +76,14 @@ Page({
     }
     return api.get('/device/list', params, { loading: reset })
       .then(function (res) {
-        var rawList = res.list || res.rows || res.data || res || []
-        if (!Array.isArray(rawList)) rawList = []
-        // 映射字段
-        var rows = rawList.map(mapDevice).filter(function (d) { return d !== null })
-        var total = res.total || res.total_count || rows.length
+        // 使用统一的解析方法
+        var result = deviceMapper.parseDeviceListResponse(res)
+        var rows = result.list
+        var total = result.total
+        
         var list = reset ? rows : that.data.list.concat(rows)
         var hasMore = list.length < total
+        
         that.setData({
           list: list,
           page: page,
@@ -116,7 +91,8 @@ Page({
           loading: false
         })
       })
-      .catch(function () {
+      .catch(function (err) {
+        console.error('[device] fetchList error:', err)
         that.setData({ loading: false })
       })
   },

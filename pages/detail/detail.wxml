@@ -1,6 +1,6 @@
 <!--
   设备详情页
-  展示：基本信息 / 最近打印内容 / 实时设备参数（WS 推送） / 操作入口（下发打印 / 历史记录）
+  展示：基本信息 / 用户信息 / 操作入口（下发打印）
 -->
 <view class="page">
   <!-- 加载中 -->
@@ -16,21 +16,30 @@
   </view>
 
   <block wx:else>
-    <!-- 基本信息 -->
+    <!-- 设备基本信息 -->
     <view class="card">
       <view class="d-head">
         <text class="d-name">{{device.deviceName}}</text>
-        <text class="tag {{device.onlineStatus === 1 ? 'tag-online' : 'tag-offline'}}">{{device.onlineStatus === 1 ? '在线' : '离线'}}</text>
+        <text class="tag {{device.onlineStatus === 2 ? 'tag-online' : (device.onlineStatus === 1 ? 'tag-fault' : 'tag-offline')}}">{{device.statusText || (device.onlineStatus === 2 ? '在线' : (device.onlineStatus === 1 ? '故障' : '离线'))}}</text>
       </view>
       <view class="d-row"><text class="muted">设备ID</text><text>{{device.deviceId}}</text></view>
       <view class="d-row"><text class="muted">设备类型</text><text class="tag tag-type">{{device.deviceType}}</text></view>
       <view class="d-row"><text class="muted">当前时间</text><text>{{currentTime}}</text></view>
     </view>
 
+    <!-- 用户/客户信息 -->
+    <view class="card" wx:if="{{username || device.customerName || device.lesseeName}}">
+      <view class="card-title">用户信息</view>
+      <view class="d-row" wx:if="{{username}}"><text class="muted">当前账号</text><text>{{username}}</text></view>
+      <view class="d-row"><text class="muted">客户名称</text><text>{{device.customerName || '--'}}</text></view>
+      <view class="d-row"><text class="muted">公司名称</text><text>{{device.lesseeName || '--'}}</text></view>
+      <view class="d-row" wx:if="{{device.lastLogin}}"><text class="muted">最近登录</text><text>{{device.lastLogin}}</text></view>
+      <view class="d-row" wx:if="{{device.onlineDuration}}"><text class="muted">在线时长</text><text>{{device.onlineDuration}}</text></view>
+    </view>
+
     <!-- 操作按钮 -->
     <view class="actions">
       <button class="btn-primary" bindtap="goPrint">下发打印</button>
-      <button class="btn-secondary" bindtap="goHistory">历史记录</button>
     </view>
   </block>
 </view>

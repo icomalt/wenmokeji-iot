@@ -1,52 +1,35 @@
 /**
  * 设备详情页逻辑 —— 对接公司物联网平台
  * 1. 进入拉取设备详情 /device/info?device_id=xxx
- * 2. 映射平台字段到前端统一格式
+ * 2. 使用统一的 deviceMapper 映射平台字段到前端统一格式
  * 3. 页面销毁时清理
  */
 const api = require('../../utils/request')
 const ws = require('../../utils/websocket')
-
-/**
- * 将平台设备数据映射为前端统一格式
- */
-function mapDevice(d) {
-  if (!d) return null
-  return {
-    deviceId: d.dev_id || d.deviceId || '',
-    deviceName: d.device_name || d.deviceName || '未命名设备',
-    deviceType: d.product_model || d.deviceType || '未知型号',
-    onlineStatus: d.status !== undefined ? d.status : (d.onlineStatus !== undefined ? d.onlineStatus : 0),
-    statusText: d.status_str || d.statusText || (d.status === 2 ? '在线' : '离线'),
-    imei: d.imei || '',
-    lastLogin: d.last_login || d.lastLogin || '',
-    onlineDuration: d.online_duration || '',
-    lesseeName: d.lessee_name || '',
-    customerName: d.user_nickname || '',
-    firmwareVersion: d.dmc_ver || '',
-    cpu: d.cpu || '',
-    memoryUsage: d.mem_usage || '',
-    signalStrength: d.csq !== undefined ? d.csq : '',
-    iccid: d.iccid || '',
-    batteryVoltage: d.m4g_vbat || '',
-    latitude: d.lat || '',
-    longitude: d.lon || ''
-  }
-}
+const config = require('../../utils/config')
+const deviceMapper = require('../../utils/deviceMapper')
+const auth = require('../../utils/auth')
 
 Page({
   data: {
     deviceId: '',
     device: null,
     loadDone: false,
-    currentTime: ''
+    currentTime: '',
+    username: ''
   },
 
   onLoad: function (options) {
-    this.setData({ deviceId: options.id || '' })
+    // 加载用户名
+    var userInfo = auth.getUserInfo() || {}
+    var username = userInfo.name || userInfo.username || '用户'
+    this.setData({ 
+      deviceId: options.id || '',
+      username: username
+    })
     this.fetchDetail(true)
-    // 订阅实时推送（如有 WebSocket）
-    if (ws.subscribe) {
+    // 只有配置了 wsUrl 才订阅 WebSocket（公司平台暂无 WebSocket）
+    if (config.wsUrl && ws.subscribe) {
       this._wsHandler = (msg) => this.handleWs(msg)
       ws.subscribe(this._wsHandler)
     }
@@ -93,18 +76,26 @@ Page({
   // 拉取设备详情（平台接口 /device/info?device_id=xxx）
   fetchDetail: function (loading) {
     var that = this
-    api.get('/device/info', { device_id: this.data.deviceId }, { loading: loading !== false })
+    var deviceId = this.data.deviceId
+    if (!deviceId) {
+      that.setData({ device: null, loadDone: true })
+      return
+    }
+    api.get('/device/info', { device_id: deviceId }, { loading: loading !== false })
       .then(function (res) {
-        var raw = res.device || res.data || res
-        if (!raw || (!raw.dev_id && !raw.deviceId)) {
+        // 使用统一的 deviceMapper 解析响应
+        var device = deviceMapper.parseDeviceDetailResponse(res)
+        
+        if (!device) {
           that.setData({ device: null, loadDone: true })
           return
         }
-        var device = mapDevice(raw)
+        
         that.setData({ device: device, loadDone: true })
       })
-      .catch(function () {
-        that.setData({ loadDone: true })
+      .catch(function (err) {
+        console.error('[detail] fetchDetail error:', err)
+        that.setData({ device: null, loadDone: true })
       })
   },
 
@@ -126,11 +117,11 @@ Page({
   },
 
   goPrint: function () {
-    if (!this.data.device) return
-    wx.navigateTo({ url: '/pages/print/print?id=' + this.data.deviceId + '&name=' + encodeURIComponent(this.data.device.deviceName || '') })
-  },
-
-  goHistory: function () {
-    wx.navigateTo({ url: '/pages/history/history?id=' + this.data.deviceId })
+    if (!this.data.device) {
+      wx.showToast({ title: '设备信息未加载', icon: 'none' })
+      return
+    }
+    var url = '/pages/print/print?id=' + this.data.deviceId + '&name=' + encodeURIComponent(this.data.device.deviceName || '')
+    wx.navigateTo({ url: url })
   }
 })
