@@ -219,3 +219,5 @@
   border: 2rpx dashed #CBD5E1;
   background: #F8FAFC;
 }
+
+.privacy-link { text-align: center; font-size: 24rpx; color: #1A365D; margin-top: 24rpx; padding: 12rpx; }

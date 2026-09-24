@@ -45,4 +45,6 @@
 
   <view class="tip" wx:if="{{isMock}}">【演示模式】任意账号密码均可登录{{'\n'}}账号含 002 → 客户2（2台设备）{{'\n'}}账号含 003 → 客户3（无设备，测空数据）</view>
   <view class="tip" wx:else>工业 IoT 云平台 · 请使用授权账号登录</view>
+
+  <view class="privacy-link" bindtap="goPrivacy">查看《用户隐私保护协议》</view>
 </view>

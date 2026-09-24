@@ -28,8 +28,7 @@ Page({
       wx.reLaunch({ url: '/pages/home/home' })
       return
     }
-    // 读取记住的账号
-    var savedUser = wx.getStorageSync('iot_saved_user') || ''
+    // 读取记住的账号    var savedUser = wx.getStorageSync('iot_saved_user') || ''
     this.setData({ username: savedUser })
     // 加载验证码
     if (!config.mock) {
@@ -74,6 +73,11 @@ Page({
   // Logo 图片加载失败 → 切换为 CSS 绘制版本
   onLogoError: function () {
     this.setData({ logoExists: false })
+  },
+
+  // 跳转隐私协议
+  goPrivacy: function () {
+    wx.navigateTo({ url: '/pages/privacy/privacy' })
   },
 
   // 输入双向绑定

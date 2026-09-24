@@ -1,0 +1,43 @@
+<view class="container">
+  <view class="title">喷码机物联网小程序用户隐私保护协议</view>
+  <view class="update">更新日期：2026 年 9 月 24 日</view>
+
+  <view class="section">
+    <view class="h2">一、我们收集的信息</view>
+    <view class="p">为了向您提供设备管理、打印下发、历史查询等核心功能，我们会收集以下信息：</view>
+    <view class="p">1. 账号信息：您登录时输入的用户名和密码，用于身份认证；</view>
+    <view class="p">2. 设备信息：您绑定的喷码机设备编号、在线状态、故障状态、最近打印内容及时间；</view>
+    <view class="p">3. 操作日志：您的打印下发记录、查询记录及操作时间。</view>
+  </view>
+
+  <view class="section">
+    <view class="h2">二、信息的使用</view>
+    <view class="p">我们仅在为您提供以下服务时使用上述信息：</view>
+    <view class="p">1. 完成设备绑定、状态查询与打印下发；</view>
+    <view class="p">2. 展示打印历史与统计；</view>
+    <view class="p">3. 保障账号安全，进行登录态校验与异常操作识别。</view>
+  </view>
+
+  <view class="section">
+    <view class="h2">三、信息的存储与保护</view>
+    <view class="p">您的登录凭证（Token）仅存储在您当前设备的微信本地缓存中，不上传至我们的服务器以外的第三方。我们采用加密传输（HTTPS）与身份鉴权机制保护您的数据安全。</view>
+    <view class="p">未经您同意，我们不会向任何第三方共享、出售或公开您的个人信息与设备数据，法律法规另有规定的除外。</view>
+  </view>
+
+  <view class="section">
+    <view class="h2">四、您的权利</view>
+    <view class="p">您可以随时在"我的"页面退出登录；如需删除账号或历史数据，请联系您的系统管理员处理。</view>
+  </view>
+
+  <view class="section">
+    <view class="h2">五、协议更新</view>
+    <view class="p">我们可能适时更新本协议。更新后将在本页面公示，继续使用即视为您接受更新后的协议。</view>
+  </view>
+
+  <view class="section">
+    <view class="h2">六、联系我们</view>
+    <view class="p">如对本协议有任何疑问，可通过您的单位系统管理员或部署方联系方式与我们沟通。</view>
+  </view>
+
+  <view class="footer">—— 全文完 ——</view>
+</view>
