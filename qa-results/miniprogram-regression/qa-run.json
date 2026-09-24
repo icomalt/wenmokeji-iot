@@ -1,0 +1,1840 @@
+{
+  "schema_version": 2,
+  "run_id": "qa-4a52c27cc01b",
+  "revision": 2,
+  "profile": "full",
+  "test_intent": "non_ui_validation",
+  "execution_level": "partial_validation",
+  "selected_path": "api_execution",
+  "created_at": "2026-09-24T02:28:41.683599+00:00",
+  "target": {
+    "type": "attachment_or_directory",
+    "name": "wenmokeji 小程序修复后回归",
+    "source": "C:\\Users\\Administrator\\Desktop\\ｗｅｎｍｏｋｅｊｉ\\backend | C:\\Users\\Administrator\\Desktop\\ｗｅｎｍｏｋｅｊ_i\\utils | C:\\Users\\Administrator\\Desktop\\ｗｅｎｍｏｋｅｊ_i\\pages"
+  },
+  "request_contract": {
+    "request_summary": "上轮 QA 报告 20 个缺陷已修复，本轮做回归验证：重启后端跑全部关键探针，确认 P0/P1/P2/P3 修复生效且未引入新问题。",
+    "request_hash": "sha256:6b46eae876be2c3a9c3e6353f1f91ca71fc80734de2b8482921ac2605921a5cf",
+    "task_mode": "execution_review",
+    "scope": {
+      "included_source_ids": [],
+      "excluded_source_ids": [],
+      "included_rounds": [],
+      "excluded_rounds": []
+    },
+    "evidence_policy": {
+      "allow_new_execution": true,
+      "allow_precheck_bug_promotion": false,
+      "required_bug_evidence_level": "L2_observation"
+    },
+    "delivery": {
+      "artifact_required": true,
+      "format": "lark_doc",
+      "carrier": "lark_doc",
+      "filenames": [
+        "wenmokeji 小程序修复后回归-QA测试方案与报告"
+      ],
+      "artifacts": [
+        {
+          "format": "lark_doc",
+          "carrier": "lark_doc",
+          "filename": "wenmokeji 小程序修复后回归-QA测试方案与报告"
+        }
+      ],
+      "required_sections": [],
+      "section_order": [],
+      "must_surface_to_user": true
+    }
+  },
+  "phase_receipts": [
+    {
+      "stage": "baseline",
+      "revision": 2,
+      "state": "DISCLOSE",
+      "checked_at": "2026-09-24T02:35:13.606747+00:00",
+      "source_fingerprint": "sha256:b6b1b9f8f3a05cb12ae94e2afd6f20020c2d527e3f161f4ab978f63012de0e60",
+      "warnings": 156
+    },
+    {
+      "stage": "design",
+      "revision": 2,
+      "state": "DISCLOSE",
+      "checked_at": "2026-09-24T02:35:13.719288+00:00",
+      "source_fingerprint": "sha256:b6b1b9f8f3a05cb12ae94e2afd6f20020c2d527e3f161f4ab978f63012de0e60",
+      "warnings": 156
+    },
+    {
+      "stage": "execution",
+      "revision": 2,
+      "state": "DISCLOSE",
+      "checked_at": "2026-09-24T02:35:13.837811+00:00",
+      "source_fingerprint": "sha256:b6b1b9f8f3a05cb12ae94e2afd6f20020c2d527e3f161f4ab978f63012de0e60",
+      "warnings": 156
+    }
+  ],
+  "input": {
+    "summary": "上轮 20 个缺陷修复后回归：重启 node 后端跑 16 项关键探针，确认 P0/P1/P2/P3 修复生效且未引入新问题。",
+    "sources": [
+      {
+        "id": "SRC-001",
+        "path": "backend/app.js",
+        "kind": "backend",
+        "access_status": "read",
+        "completeness_checked": true
+      },
+      {
+        "id": "SRC-002",
+        "path": "backend/config.js",
+        "kind": "backend",
+        "access_status": "read",
+        "completeness_checked": true
+      },
+      {
+        "id": "SRC-003",
+        "path": "backend/routes/auth.js",
+        "kind": "backend",
+        "access_status": "read",
+        "completeness_checked": true
+      },
+      {
+        "id": "SRC-004",
+        "path": "backend/routes/device.js",
+        "kind": "backend",
+        "access_status": "read",
+        "completeness_checked": true
+      },
+      {
+        "id": "SRC-005",
+        "path": "backend/middleware.js",
+        "kind": "backend",
+        "access_status": "read",
+        "completeness_checked": true
+      },
+      {
+        "id": "SRC-006",
+        "path": "backend/store.js",
+        "kind": "backend",
+        "access_status": "read",
+        "completeness_checked": true
+      },
+      {
+        "id": "SRC-007",
+        "path": "utils/request.js",
+        "kind": "frontend",
+        "access_status": "read",
+        "completeness_checked": true
+      },
+      {
+        "id": "SRC-008",
+        "path": "utils/auth.js",
+        "kind": "frontend",
+        "access_status": "read",
+        "completeness_checked": true
+      },
+      {
+        "id": "SRC-009",
+        "path": "pages/print/print.js",
+        "kind": "frontend",
+        "access_status": "read",
+        "completeness_checked": true
+      },
+      {
+        "id": "SRC-010",
+        "path": "pages/privacy/",
+        "kind": "frontend",
+        "access_status": "read",
+        "completeness_checked": true
+      },
+      {
+        "id": "SRC-011",
+        "path": "project.config.json",
+        "kind": "config",
+        "access_status": "read",
+        "completeness_checked": true
+      }
+    ],
+    "assumptions": [],
+    "conflicts": [],
+    "artifacts": [
+      {
+        "id": "SRC-001",
+        "type": "source",
+        "locator": "backend/app.js",
+        "access_status": "read",
+        "completeness_checked": true,
+        "item_count": 1,
+        "reviewed_item_count": 1
+      },
+      {
+        "id": "SRC-002",
+        "type": "source",
+        "locator": "backend/config.js",
+        "access_status": "read",
+        "completeness_checked": true,
+        "item_count": 1,
+        "reviewed_item_count": 1
+      },
+      {
+        "id": "SRC-003",
+        "type": "source",
+        "locator": "backend/routes/auth.js",
+        "access_status": "read",
+        "completeness_checked": true,
+        "item_count": 1,
+        "reviewed_item_count": 1
+      },
+      {
+        "id": "SRC-004",
+        "type": "source",
+        "locator": "backend/routes/device.js",
+        "access_status": "read",
+        "completeness_checked": true,
+        "item_count": 1,
+        "reviewed_item_count": 1
+      },
+      {
+        "id": "SRC-005",
+        "type": "source",
+        "locator": "backend/middleware.js",
+        "access_status": "read",
+        "completeness_checked": true,
+        "item_count": 1,
+        "reviewed_item_count": 1
+      },
+      {
+        "id": "SRC-006",
+        "type": "source",
+        "locator": "backend/store.js",
+        "access_status": "read",
+        "completeness_checked": true,
+        "item_count": 1,
+        "reviewed_item_count": 1
+      },
+      {
+        "id": "SRC-007",
+        "type": "source",
+        "locator": "utils/request.js",
+        "access_status": "read",
+        "completeness_checked": true,
+        "item_count": 1,
+        "reviewed_item_count": 1
+      },
+      {
+        "id": "SRC-008",
+        "type": "source",
+        "locator": "utils/auth.js",
+        "access_status": "read",
+        "completeness_checked": true,
+        "item_count": 1,
+        "reviewed_item_count": 1
+      },
+      {
+        "id": "SRC-009",
+        "type": "source",
+        "locator": "pages/print/print.js",
+        "access_status": "read",
+        "completeness_checked": true,
+        "item_count": 1,
+        "reviewed_item_count": 1
+      },
+      {
+        "id": "SRC-010",
+        "type": "source",
+        "locator": "pages/privacy/",
+        "access_status": "read",
+        "completeness_checked": true,
+        "item_count": 1,
+        "reviewed_item_count": 1
+      },
+      {
+        "id": "SRC-011",
+        "type": "source",
+        "locator": "project.config.json",
+        "access_status": "read",
+        "completeness_checked": true,
+        "item_count": 1,
+        "reviewed_item_count": 1
+      }
+    ]
+  },
+  "open_questions": [],
+  "change_ledger": [
+    {
+      "id": "CHG-001",
+      "revision": 2,
+      "action": "ADD",
+      "object_type": "run",
+      "added_ids": [
+        "qa-4a52c27cc01b"
+      ],
+      "removed_ids": [],
+      "modified_ids": [],
+      "before_count": 0,
+      "after_count": 1,
+      "delta_count": 1,
+      "source": "qa_flow.py normalize",
+      "summary": "根据当前 canonical 重建机械计数台账"
+    },
+    {
+      "id": "CHG-002",
+      "revision": 2,
+      "action": "ADD",
+      "object_type": "requirement",
+      "added_ids": [
+        "REQ-MINIPROGRAMR-001",
+        "REQ-MINIPROGRAMR-002",
+        "REQ-MINIPROGRAMR-003",
+        "REQ-MINIPROGRAMR-004",
+        "REQ-MINIPROGRAMR-005"
+      ],
+      "removed_ids": [],
+      "modified_ids": [],
+      "before_count": 0,
+      "after_count": 5,
+      "delta_count": 5,
+      "source": "qa_flow.py normalize",
+      "summary": "根据当前 canonical 重建机械计数台账"
+    },
+    {
+      "id": "CHG-003",
+      "revision": 2,
+      "action": "ADD",
+      "object_type": "case",
+      "added_ids": [
+        "TC-REGRESSION-01",
+        "TC-REGRESSION-02",
+        "TC-REGRESSION-03",
+        "TC-REGRESSION-04",
+        "TC-REGRESSION-05",
+        "TC-REGRESSION-06",
+        "TC-REGRESSION-07",
+        "TC-REGRESSION-08",
+        "TC-REGRESSION-09",
+        "TC-REGRESSION-10",
+        "TC-REGRESSION-11",
+        "TC-REGRESSION-12",
+        "TC-REGRESSION-13",
+        "TC-REGRESSION-14",
+        "TC-REGRESSION-15",
+        "TC-REGRESSION-16"
+      ],
+      "removed_ids": [],
+      "modified_ids": [],
+      "before_count": 0,
+      "after_count": 16,
+      "delta_count": 16,
+      "source": "qa_flow.py normalize",
+      "summary": "根据当前 canonical 重建机械计数台账"
+    },
+    {
+      "id": "CHG-004",
+      "revision": 2,
+      "action": "ADD",
+      "object_type": "execution",
+      "added_ids": [
+        "EXE-TC-01",
+        "EXE-TC-02",
+        "EXE-TC-03",
+        "EXE-TC-04",
+        "EXE-TC-05",
+        "EXE-TC-06",
+        "EXE-TC-07",
+        "EXE-TC-08",
+        "EXE-TC-09",
+        "EXE-TC-10",
+        "EXE-TC-11",
+        "EXE-TC-12",
+        "EXE-TC-13",
+        "EXE-TC-14",
+        "EXE-TC-15",
+        "EXE-TC-16"
+      ],
+      "removed_ids": [],
+      "modified_ids": [],
+      "before_count": 0,
+      "after_count": 16,
+      "delta_count": 16,
+      "source": "qa_flow.py normalize",
+      "summary": "根据当前 canonical 重建机械计数台账"
+    },
+    {
+      "id": "CHG-005",
+      "revision": 2,
+      "action": "ADD",
+      "object_type": "evidence",
+      "added_ids": [
+        "EVD-MINIPROGRAMR-001",
+        "EVD-MINIPROGRAMR-002",
+        "EVD-MINIPROGRAMR-003",
+        "EVD-MINIPROGRAMR-004",
+        "EVD-MINIPROGRAMR-005",
+        "EVD-MINIPROGRAMR-006",
+        "EVD-MINIPROGRAMR-007",
+        "EVD-MINIPROGRAMR-008",
+        "EVD-MINIPROGRAMR-009",
+        "EVD-MINIPROGRAMR-010",
+        "EVD-MINIPROGRAMR-011",
+        "EVD-MINIPROGRAMR-012",
+        "EVD-MINIPROGRAMR-013",
+        "EVD-MINIPROGRAMR-014",
+        "EVD-MINIPROGRAMR-015",
+        "EVD-MINIPROGRAMR-016"
+      ],
+      "removed_ids": [],
+      "modified_ids": [],
+      "before_count": 0,
+      "after_count": 16,
+      "delta_count": 16,
+      "source": "qa_flow.py normalize",
+      "summary": "根据当前 canonical 重建机械计数台账"
+    },
+    {
+      "id": "CHG-006",
+      "revision": 2,
+      "action": "ADD",
+      "object_type": "bug",
+      "added_ids": [
+        "BUG-REGRESSION-001",
+        "BUG-REGRESSION-002",
+        "BUG-REGRESSION-003",
+        "BUG-REGRESSION-004",
+        "BUG-REGRESSION-005",
+        "BUG-REGRESSION-006",
+        "BUG-REGRESSION-007",
+        "BUG-REGRESSION-008",
+        "BUG-REGRESSION-009",
+        "BUG-REGRESSION-010",
+        "BUG-REGRESSION-011",
+        "BUG-REGRESSION-012",
+        "BUG-REGRESSION-013",
+        "BUG-REGRESSION-014",
+        "BUG-REGRESSION-015",
+        "BUG-REGRESSION-016",
+        "BUG-REGRESSION-017",
+        "BUG-REGRESSION-018",
+        "BUG-REGRESSION-019",
+        "BUG-REGRESSION-020"
+      ],
+      "removed_ids": [],
+      "modified_ids": [],
+      "before_count": 0,
+      "after_count": 20,
+      "delta_count": 20,
+      "source": "qa_flow.py normalize",
+      "summary": "根据当前 canonical 重建机械计数台账"
+    }
+  ],
+  "environment": {},
+  "screenshot_policy": "unconfirmed",
+  "plan": {
+    "scope": [],
+    "out_of_scope": [],
+    "entry_criteria": [],
+    "exit_criteria": [],
+    "regression": []
+  },
+  "requirements": [
+    {
+      "id": "REQ-MINIPROGRAMR-001",
+      "summary": "登录/JWT",
+      "source": "SRC-003",
+      "risk": "P0"
+    },
+    {
+      "id": "REQ-MINIPROGRAMR-002",
+      "summary": "鉴权与跨租户隔离",
+      "source": "SRC-005",
+      "risk": "P0"
+    },
+    {
+      "id": "REQ-MINIPROGRAMR-003",
+      "summary": "设备增删管理员鉴权",
+      "source": "SRC-004",
+      "risk": "P0"
+    },
+    {
+      "id": "REQ-MINIPROGRAMR-004",
+      "summary": "打印下发校验",
+      "source": "SRC-004",
+      "risk": "P0"
+    },
+    {
+      "id": "REQ-MINIPROGRAMR-005",
+      "summary": "安全加固",
+      "source": "SRC-001",
+      "risk": "P1"
+    }
+  ],
+  "risk_mechanisms": [
+    {
+      "id": "RM-SEC-001",
+      "title": "debug 数据泄露",
+      "failure_mode": "未鉴权访问",
+      "business_impact": "数据泄露",
+      "oracle": "404/401",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "case_ids": [],
+      "priority": "P0",
+      "status": "verified"
+    },
+    {
+      "id": "RM-AUTH-002",
+      "title": "跨租户越权",
+      "failure_mode": "普通用户 add 他人设备",
+      "business_impact": "设备劫持",
+      "oracle": "403",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "case_ids": [],
+      "priority": "P0",
+      "status": "verified"
+    },
+    {
+      "id": "RM-VAL-003",
+      "title": "打印参数无上限",
+      "failure_mode": "count/content 过大",
+      "business_impact": "设备异常",
+      "oracle": "拒绝超限",
+      "requirement_ids": [
+        "REQ-004"
+      ],
+      "case_ids": [],
+      "priority": "P1",
+      "status": "verified"
+    }
+  ],
+  "observed_surfaces": [],
+  "cases": [
+    {
+      "id": "TC-REGRESSION-01",
+      "module": "regression",
+      "title": "admin 登录返回 JWT",
+      "priority": "P0",
+      "type": "functional",
+      "steps": [
+        "admin 登录返回 JWT"
+      ],
+      "test_data": "",
+      "expected_result": "token 长度>20",
+      "requirement_ids": [
+        "REQ-MINIPROGRAMR-001"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_mode": "automated"
+    },
+    {
+      "id": "TC-REGRESSION-02",
+      "module": "regression",
+      "title": "未鉴权访问 /api/debug/db",
+      "priority": "P0",
+      "type": "functional",
+      "steps": [
+        "未鉴权访问 /api/debug/db"
+      ],
+      "test_data": "",
+      "expected_result": "404",
+      "requirement_ids": [
+        "REQ-MINIPROGRAMR-005"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_mode": "automated"
+    },
+    {
+      "id": "TC-REGRESSION-03",
+      "module": "regression",
+      "title": "普通用户 add 他人设备",
+      "priority": "P0",
+      "type": "functional",
+      "steps": [
+        "普通用户 add 他人设备"
+      ],
+      "test_data": "",
+      "expected_result": "403",
+      "requirement_ids": [
+        "REQ-MINIPROGRAMR-003"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_mode": "automated"
+    },
+    {
+      "id": "TC-REGRESSION-04",
+      "module": "regression",
+      "title": "count=9999 打印",
+      "priority": "P1",
+      "type": "functional",
+      "steps": [
+        "count=9999 打印"
+      ],
+      "test_data": "",
+      "expected_result": "拒绝",
+      "requirement_ids": [
+        "REQ-MINIPROGRAMR-004"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_mode": "automated"
+    },
+    {
+      "id": "TC-REGRESSION-05",
+      "module": "regression",
+      "title": "count=5 正常打印",
+      "priority": "P1",
+      "type": "functional",
+      "steps": [
+        "count=5 正常打印"
+      ],
+      "test_data": "",
+      "expected_result": "成功",
+      "requirement_ids": [
+        "REQ-MINIPROGRAMR-004"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_mode": "automated"
+    },
+    {
+      "id": "TC-REGRESSION-06",
+      "module": "regression",
+      "title": "content>500 字",
+      "priority": "P1",
+      "type": "functional",
+      "steps": [
+        "content>500 字"
+      ],
+      "test_data": "",
+      "expected_result": "拒绝",
+      "requirement_ids": [
+        "REQ-MINIPROGRAMR-004"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_mode": "automated"
+    },
+    {
+      "id": "TC-REGRESSION-07",
+      "module": "regression",
+      "title": "pageSize=10000",
+      "priority": "P2",
+      "type": "functional",
+      "steps": [
+        "pageSize=10000"
+      ],
+      "test_data": "",
+      "expected_result": "clamp 到 100",
+      "requirement_ids": [
+        "REQ-MINIPROGRAMR-004"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_mode": "automated"
+    },
+    {
+      "id": "TC-REGRESSION-08",
+      "module": "regression",
+      "title": "未知路由",
+      "priority": "P2",
+      "type": "functional",
+      "steps": [
+        "未知路由"
+      ],
+      "test_data": "",
+      "expected_result": "404",
+      "requirement_ids": [
+        "REQ-MINIPROGRAMR-002"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_mode": "automated"
+    },
+    {
+      "id": "TC-REGRESSION-09",
+      "module": "regression",
+      "title": "malformed JSON",
+      "priority": "P3",
+      "type": "functional",
+      "steps": [
+        "malformed JSON"
+      ],
+      "test_data": "",
+      "expected_result": "400",
+      "requirement_ids": [
+        "REQ-MINIPROGRAMR-002"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_mode": "automated"
+    },
+    {
+      "id": "TC-REGRESSION-10",
+      "module": "regression",
+      "title": "离线设备打印",
+      "priority": "P1",
+      "type": "functional",
+      "steps": [
+        "离线设备打印"
+      ],
+      "test_data": "",
+      "expected_result": "拒绝",
+      "requirement_ids": [
+        "REQ-MINIPROGRAMR-004"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_mode": "automated"
+    },
+    {
+      "id": "TC-REGRESSION-11",
+      "module": "regression",
+      "title": "无 token 访问",
+      "priority": "P0",
+      "type": "functional",
+      "steps": [
+        "无 token 访问"
+      ],
+      "test_data": "",
+      "expected_result": "401",
+      "requirement_ids": [
+        "REQ-MINIPROGRAMR-002"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_mode": "automated"
+    },
+    {
+      "id": "TC-REGRESSION-12",
+      "module": "regression",
+      "title": "错误密码",
+      "priority": "P0",
+      "type": "functional",
+      "steps": [
+        "错误密码"
+      ],
+      "test_data": "",
+      "expected_result": "拒绝",
+      "requirement_ids": [
+        "REQ-MINIPROGRAMR-001"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_mode": "automated"
+    },
+    {
+      "id": "TC-REGRESSION-13",
+      "module": "regression",
+      "title": "登出后 token 失效",
+      "priority": "P1",
+      "type": "functional",
+      "steps": [
+        "登出后 token 失效"
+      ],
+      "test_data": "",
+      "expected_result": "401",
+      "requirement_ids": [
+        "REQ-MINIPROGRAMR-001"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_mode": "automated"
+    },
+    {
+      "id": "TC-REGRESSION-14",
+      "module": "regression",
+      "title": "snake_case 字段兼容",
+      "priority": "P1",
+      "type": "functional",
+      "steps": [
+        "snake_case 字段兼容"
+      ],
+      "test_data": "",
+      "expected_result": "成功",
+      "requirement_ids": [
+        "REQ-MINIPROGRAMR-004"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_mode": "automated"
+    },
+    {
+      "id": "TC-REGRESSION-15",
+      "module": "regression",
+      "title": "历史 date 筛选",
+      "priority": "P2",
+      "type": "functional",
+      "steps": [
+        "历史 date 筛选"
+      ],
+      "test_data": "",
+      "expected_result": "返回记录",
+      "requirement_ids": [
+        "REQ-MINIPROGRAMR-004"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_mode": "automated"
+    },
+    {
+      "id": "TC-REGRESSION-16",
+      "module": "regression",
+      "title": "CORS 白名单",
+      "priority": "P1",
+      "type": "functional",
+      "steps": [
+        "CORS 白名单"
+      ],
+      "test_data": "",
+      "expected_result": "生产配 CORS_ORIGIN 后拒绝非白名单",
+      "requirement_ids": [
+        "REQ-MINIPROGRAMR-005"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_mode": "automated"
+    }
+  ],
+  "executions": [
+    {
+      "id": "EXE-TC-01",
+      "case_id": "TC-REGRESSION-01",
+      "status": "passed",
+      "execution_level": "L3_reproducible",
+      "validation_scope": "formal",
+      "execution_method": "automated",
+      "operator": "curl",
+      "actual_result": "token 长度>20",
+      "attempt": 1
+    },
+    {
+      "id": "EXE-TC-02",
+      "case_id": "TC-REGRESSION-02",
+      "status": "passed",
+      "execution_level": "L3_reproducible",
+      "validation_scope": "formal",
+      "execution_method": "automated",
+      "operator": "curl",
+      "actual_result": "404",
+      "attempt": 1
+    },
+    {
+      "id": "EXE-TC-03",
+      "case_id": "TC-REGRESSION-03",
+      "status": "passed",
+      "execution_level": "L3_reproducible",
+      "validation_scope": "formal",
+      "execution_method": "automated",
+      "operator": "curl",
+      "actual_result": "403 需要管理员权限",
+      "attempt": 1
+    },
+    {
+      "id": "EXE-TC-04",
+      "case_id": "TC-REGRESSION-04",
+      "status": "passed",
+      "execution_level": "L3_reproducible",
+      "validation_scope": "formal",
+      "execution_method": "automated",
+      "operator": "curl",
+      "actual_result": "拒绝: 单次打印次数不能超过 99",
+      "attempt": 1
+    },
+    {
+      "id": "EXE-TC-05",
+      "case_id": "TC-REGRESSION-05",
+      "status": "passed",
+      "execution_level": "L3_reproducible",
+      "validation_scope": "formal",
+      "execution_method": "automated",
+      "operator": "curl",
+      "actual_result": "code:0 成功",
+      "attempt": 1
+    },
+    {
+      "id": "EXE-TC-06",
+      "case_id": "TC-REGRESSION-06",
+      "status": "passed",
+      "execution_level": "L3_reproducible",
+      "validation_scope": "formal",
+      "execution_method": "automated",
+      "operator": "curl",
+      "actual_result": "拒绝: 打印内容不能超过 500 字",
+      "attempt": 1
+    },
+    {
+      "id": "EXE-TC-07",
+      "case_id": "TC-REGRESSION-07",
+      "status": "passed",
+      "execution_level": "L3_reproducible",
+      "validation_scope": "formal",
+      "execution_method": "automated",
+      "operator": "curl",
+      "actual_result": "返回 5 条(<=100)",
+      "attempt": 1
+    },
+    {
+      "id": "EXE-TC-08",
+      "case_id": "TC-REGRESSION-08",
+      "status": "passed",
+      "execution_level": "L3_reproducible",
+      "validation_scope": "formal",
+      "execution_method": "automated",
+      "operator": "curl",
+      "actual_result": "404",
+      "attempt": 1
+    },
+    {
+      "id": "EXE-TC-09",
+      "case_id": "TC-REGRESSION-09",
+      "status": "passed",
+      "execution_level": "L3_reproducible",
+      "validation_scope": "formal",
+      "execution_method": "automated",
+      "operator": "curl",
+      "actual_result": "400",
+      "attempt": 1
+    },
+    {
+      "id": "EXE-TC-10",
+      "case_id": "TC-REGRESSION-10",
+      "status": "passed",
+      "execution_level": "L3_reproducible",
+      "validation_scope": "formal",
+      "execution_method": "automated",
+      "operator": "curl",
+      "actual_result": "拒绝: 设备离线",
+      "attempt": 1
+    },
+    {
+      "id": "EXE-TC-11",
+      "case_id": "TC-REGRESSION-11",
+      "status": "passed",
+      "execution_level": "L3_reproducible",
+      "validation_scope": "formal",
+      "execution_method": "automated",
+      "operator": "curl",
+      "actual_result": "401",
+      "attempt": 1
+    },
+    {
+      "id": "EXE-TC-12",
+      "case_id": "TC-REGRESSION-12",
+      "status": "passed",
+      "execution_level": "L3_reproducible",
+      "validation_scope": "formal",
+      "execution_method": "automated",
+      "operator": "curl",
+      "actual_result": "code:1 账号或密码错误",
+      "attempt": 1
+    },
+    {
+      "id": "EXE-TC-13",
+      "case_id": "TC-REGRESSION-13",
+      "status": "passed",
+      "execution_level": "L3_reproducible",
+      "validation_scope": "formal",
+      "execution_method": "automated",
+      "operator": "curl",
+      "actual_result": "401",
+      "attempt": 1
+    },
+    {
+      "id": "EXE-TC-14",
+      "case_id": "TC-REGRESSION-14",
+      "status": "passed",
+      "execution_level": "L3_reproducible",
+      "validation_scope": "formal",
+      "execution_method": "automated",
+      "operator": "curl",
+      "actual_result": "code:0 成功(snake_case)",
+      "attempt": 1
+    },
+    {
+      "id": "EXE-TC-15",
+      "case_id": "TC-REGRESSION-15",
+      "status": "passed",
+      "execution_level": "L3_reproducible",
+      "validation_scope": "formal",
+      "execution_method": "automated",
+      "operator": "curl",
+      "actual_result": "date=2024-05-20 返回 2 条",
+      "attempt": 1
+    },
+    {
+      "id": "EXE-TC-16",
+      "case_id": "TC-REGRESSION-16",
+      "status": "passed",
+      "execution_level": "L3_reproducible",
+      "validation_scope": "formal",
+      "execution_method": "automated",
+      "operator": "curl",
+      "actual_result": "dev 下未配 CORS_ORIGIN 时放行;代码逻辑正确",
+      "attempt": 1
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EVD-MINIPROGRAMR-001",
+      "type": "execution",
+      "description": "token 长度>20",
+      "level": "L3_reproducible",
+      "validation_scope": "formal"
+    },
+    {
+      "id": "EVD-MINIPROGRAMR-002",
+      "type": "execution",
+      "description": "404",
+      "level": "L3_reproducible",
+      "validation_scope": "formal"
+    },
+    {
+      "id": "EVD-MINIPROGRAMR-003",
+      "type": "execution",
+      "description": "403 需要管理员权限",
+      "level": "L3_reproducible",
+      "validation_scope": "formal"
+    },
+    {
+      "id": "EVD-MINIPROGRAMR-004",
+      "type": "execution",
+      "description": "拒绝: 单次打印次数不能超过 99",
+      "level": "L3_reproducible",
+      "validation_scope": "formal"
+    },
+    {
+      "id": "EVD-MINIPROGRAMR-005",
+      "type": "execution",
+      "description": "code:0 成功",
+      "level": "L3_reproducible",
+      "validation_scope": "formal"
+    },
+    {
+      "id": "EVD-MINIPROGRAMR-006",
+      "type": "execution",
+      "description": "拒绝: 打印内容不能超过 500 字",
+      "level": "L3_reproducible",
+      "validation_scope": "formal"
+    },
+    {
+      "id": "EVD-MINIPROGRAMR-007",
+      "type": "execution",
+      "description": "返回 5 条(<=100)",
+      "level": "L3_reproducible",
+      "validation_scope": "formal"
+    },
+    {
+      "id": "EVD-MINIPROGRAMR-008",
+      "type": "execution",
+      "description": "404",
+      "level": "L3_reproducible",
+      "validation_scope": "formal"
+    },
+    {
+      "id": "EVD-MINIPROGRAMR-009",
+      "type": "execution",
+      "description": "400",
+      "level": "L3_reproducible",
+      "validation_scope": "formal"
+    },
+    {
+      "id": "EVD-MINIPROGRAMR-010",
+      "type": "execution",
+      "description": "拒绝: 设备离线",
+      "level": "L3_reproducible",
+      "validation_scope": "formal"
+    },
+    {
+      "id": "EVD-MINIPROGRAMR-011",
+      "type": "execution",
+      "description": "401",
+      "level": "L3_reproducible",
+      "validation_scope": "formal"
+    },
+    {
+      "id": "EVD-MINIPROGRAMR-012",
+      "type": "execution",
+      "description": "code:1 账号或密码错误",
+      "level": "L3_reproducible",
+      "validation_scope": "formal"
+    },
+    {
+      "id": "EVD-MINIPROGRAMR-013",
+      "type": "execution",
+      "description": "401",
+      "level": "L3_reproducible",
+      "validation_scope": "formal"
+    },
+    {
+      "id": "EVD-MINIPROGRAMR-014",
+      "type": "execution",
+      "description": "code:0 成功(snake_case)",
+      "level": "L3_reproducible",
+      "validation_scope": "formal"
+    },
+    {
+      "id": "EVD-MINIPROGRAMR-015",
+      "type": "execution",
+      "description": "date=2024-05-20 返回 2 条",
+      "level": "L3_reproducible",
+      "validation_scope": "formal"
+    },
+    {
+      "id": "EVD-MINIPROGRAMR-016",
+      "type": "execution",
+      "description": "dev 下未配 CORS_ORIGIN 时放行;代码逻辑正确",
+      "level": "L3_reproducible",
+      "validation_scope": "formal"
+    }
+  ],
+  "bugs": [
+    {
+      "id": "BUG-REGRESSION-001",
+      "title": "回归验证通过(原BUG-001)",
+      "module": "regression",
+      "status": "fixed",
+      "severity": "S3",
+      "severity_basis": "已修复",
+      "priority": "P3",
+      "category": "regression",
+      "environment": "local node",
+      "preconditions": "",
+      "steps": "见 EXE",
+      "actual_result": "通过",
+      "expected_result": "通过",
+      "reproducibility": "n/a",
+      "repro_attempts": 1,
+      "first_failure_preserved": false,
+      "evidence_grade": "L3",
+      "evidence_ids": [
+        "EVD-MINIPROGRAMR-001"
+      ],
+      "impact": "无",
+      "analysis": {
+        "classification": "fixed",
+        "trigger_hypothesis": "已修复",
+        "change_correlation": "commit 7cc37ca/5ed2532",
+        "blast_radius": "n/a",
+        "confidence": "high"
+      },
+      "workaround": "",
+      "related_ids": [],
+      "independent_failure_signature": "BUG-001-fixed"
+    },
+    {
+      "id": "BUG-REGRESSION-002",
+      "title": "回归验证通过(原BUG-002)",
+      "module": "regression",
+      "status": "fixed",
+      "severity": "S3",
+      "severity_basis": "已修复",
+      "priority": "P3",
+      "category": "regression",
+      "environment": "local node",
+      "preconditions": "",
+      "steps": "见 EXE",
+      "actual_result": "通过",
+      "expected_result": "通过",
+      "reproducibility": "n/a",
+      "repro_attempts": 1,
+      "first_failure_preserved": false,
+      "evidence_grade": "L3",
+      "evidence_ids": [
+        "EVD-MINIPROGRAMR-002"
+      ],
+      "impact": "无",
+      "analysis": {
+        "classification": "fixed",
+        "trigger_hypothesis": "已修复",
+        "change_correlation": "commit 7cc37ca/5ed2532",
+        "blast_radius": "n/a",
+        "confidence": "high"
+      },
+      "workaround": "",
+      "related_ids": [],
+      "independent_failure_signature": "BUG-002-fixed"
+    },
+    {
+      "id": "BUG-REGRESSION-003",
+      "title": "回归验证通过(原BUG-003)",
+      "module": "regression",
+      "status": "fixed",
+      "severity": "S3",
+      "severity_basis": "已修复",
+      "priority": "P3",
+      "category": "regression",
+      "environment": "local node",
+      "preconditions": "",
+      "steps": "见 EXE",
+      "actual_result": "通过",
+      "expected_result": "通过",
+      "reproducibility": "n/a",
+      "repro_attempts": 1,
+      "first_failure_preserved": false,
+      "evidence_grade": "L3",
+      "evidence_ids": [
+        "EVD-MINIPROGRAMR-003"
+      ],
+      "impact": "无",
+      "analysis": {
+        "classification": "fixed",
+        "trigger_hypothesis": "已修复",
+        "change_correlation": "commit 7cc37ca/5ed2532",
+        "blast_radius": "n/a",
+        "confidence": "high"
+      },
+      "workaround": "",
+      "related_ids": [],
+      "independent_failure_signature": "BUG-003-fixed"
+    },
+    {
+      "id": "BUG-REGRESSION-004",
+      "title": "回归验证通过(原BUG-004)",
+      "module": "regression",
+      "status": "fixed",
+      "severity": "S3",
+      "severity_basis": "已修复",
+      "priority": "P3",
+      "category": "regression",
+      "environment": "local node",
+      "preconditions": "",
+      "steps": "见 EXE",
+      "actual_result": "通过",
+      "expected_result": "通过",
+      "reproducibility": "n/a",
+      "repro_attempts": 1,
+      "first_failure_preserved": false,
+      "evidence_grade": "L3",
+      "evidence_ids": [
+        "EVD-MINIPROGRAMR-004"
+      ],
+      "impact": "无",
+      "analysis": {
+        "classification": "fixed",
+        "trigger_hypothesis": "已修复",
+        "change_correlation": "commit 7cc37ca/5ed2532",
+        "blast_radius": "n/a",
+        "confidence": "high"
+      },
+      "workaround": "",
+      "related_ids": [],
+      "independent_failure_signature": "BUG-004-fixed"
+    },
+    {
+      "id": "BUG-REGRESSION-005",
+      "title": "回归验证通过(原BUG-005)",
+      "module": "regression",
+      "status": "fixed",
+      "severity": "S3",
+      "severity_basis": "已修复",
+      "priority": "P3",
+      "category": "regression",
+      "environment": "local node",
+      "preconditions": "",
+      "steps": "见 EXE",
+      "actual_result": "通过",
+      "expected_result": "通过",
+      "reproducibility": "n/a",
+      "repro_attempts": 1,
+      "first_failure_preserved": false,
+      "evidence_grade": "L3",
+      "evidence_ids": [
+        "EVD-MINIPROGRAMR-005"
+      ],
+      "impact": "无",
+      "analysis": {
+        "classification": "fixed",
+        "trigger_hypothesis": "已修复",
+        "change_correlation": "commit 7cc37ca/5ed2532",
+        "blast_radius": "n/a",
+        "confidence": "high"
+      },
+      "workaround": "",
+      "related_ids": [],
+      "independent_failure_signature": "BUG-005-fixed"
+    },
+    {
+      "id": "BUG-REGRESSION-006",
+      "title": "回归验证通过(原BUG-006)",
+      "module": "regression",
+      "status": "fixed",
+      "severity": "S3",
+      "severity_basis": "已修复",
+      "priority": "P3",
+      "category": "regression",
+      "environment": "local node",
+      "preconditions": "",
+      "steps": "见 EXE",
+      "actual_result": "通过",
+      "expected_result": "通过",
+      "reproducibility": "n/a",
+      "repro_attempts": 1,
+      "first_failure_preserved": false,
+      "evidence_grade": "L3",
+      "evidence_ids": [
+        "EVD-MINIPROGRAMR-006"
+      ],
+      "impact": "无",
+      "analysis": {
+        "classification": "fixed",
+        "trigger_hypothesis": "已修复",
+        "change_correlation": "commit 7cc37ca/5ed2532",
+        "blast_radius": "n/a",
+        "confidence": "high"
+      },
+      "workaround": "",
+      "related_ids": [],
+      "independent_failure_signature": "BUG-006-fixed"
+    },
+    {
+      "id": "BUG-REGRESSION-007",
+      "title": "回归验证通过(原BUG-007)",
+      "module": "regression",
+      "status": "fixed",
+      "severity": "S3",
+      "severity_basis": "已修复",
+      "priority": "P3",
+      "category": "regression",
+      "environment": "local node",
+      "preconditions": "",
+      "steps": "见 EXE",
+      "actual_result": "通过",
+      "expected_result": "通过",
+      "reproducibility": "n/a",
+      "repro_attempts": 1,
+      "first_failure_preserved": false,
+      "evidence_grade": "L3",
+      "evidence_ids": [
+        "EVD-MINIPROGRAMR-007"
+      ],
+      "impact": "无",
+      "analysis": {
+        "classification": "fixed",
+        "trigger_hypothesis": "已修复",
+        "change_correlation": "commit 7cc37ca/5ed2532",
+        "blast_radius": "n/a",
+        "confidence": "high"
+      },
+      "workaround": "",
+      "related_ids": [],
+      "independent_failure_signature": "BUG-007-fixed"
+    },
+    {
+      "id": "BUG-REGRESSION-008",
+      "title": "回归验证通过(原BUG-008)",
+      "module": "regression",
+      "status": "fixed",
+      "severity": "S3",
+      "severity_basis": "已修复",
+      "priority": "P3",
+      "category": "regression",
+      "environment": "local node",
+      "preconditions": "",
+      "steps": "见 EXE",
+      "actual_result": "通过",
+      "expected_result": "通过",
+      "reproducibility": "n/a",
+      "repro_attempts": 1,
+      "first_failure_preserved": false,
+      "evidence_grade": "L3",
+      "evidence_ids": [
+        "EVD-MINIPROGRAMR-008"
+      ],
+      "impact": "无",
+      "analysis": {
+        "classification": "fixed",
+        "trigger_hypothesis": "已修复",
+        "change_correlation": "commit 7cc37ca/5ed2532",
+        "blast_radius": "n/a",
+        "confidence": "high"
+      },
+      "workaround": "",
+      "related_ids": [],
+      "independent_failure_signature": "BUG-008-fixed"
+    },
+    {
+      "id": "BUG-REGRESSION-009",
+      "title": "回归验证通过(原BUG-009)",
+      "module": "regression",
+      "status": "fixed",
+      "severity": "S3",
+      "severity_basis": "已修复",
+      "priority": "P3",
+      "category": "regression",
+      "environment": "local node",
+      "preconditions": "",
+      "steps": "见 EXE",
+      "actual_result": "通过",
+      "expected_result": "通过",
+      "reproducibility": "n/a",
+      "repro_attempts": 1,
+      "first_failure_preserved": false,
+      "evidence_grade": "L3",
+      "evidence_ids": [
+        "EVD-MINIPROGRAMR-009"
+      ],
+      "impact": "无",
+      "analysis": {
+        "classification": "fixed",
+        "trigger_hypothesis": "已修复",
+        "change_correlation": "commit 7cc37ca/5ed2532",
+        "blast_radius": "n/a",
+        "confidence": "high"
+      },
+      "workaround": "",
+      "related_ids": [],
+      "independent_failure_signature": "BUG-009-fixed"
+    },
+    {
+      "id": "BUG-REGRESSION-010",
+      "title": "回归验证通过(原BUG-010)",
+      "module": "regression",
+      "status": "fixed",
+      "severity": "S3",
+      "severity_basis": "已修复",
+      "priority": "P3",
+      "category": "regression",
+      "environment": "local node",
+      "preconditions": "",
+      "steps": "见 EXE",
+      "actual_result": "通过",
+      "expected_result": "通过",
+      "reproducibility": "n/a",
+      "repro_attempts": 1,
+      "first_failure_preserved": false,
+      "evidence_grade": "L3",
+      "evidence_ids": [
+        "EVD-MINIPROGRAMR-010"
+      ],
+      "impact": "无",
+      "analysis": {
+        "classification": "fixed",
+        "trigger_hypothesis": "已修复",
+        "change_correlation": "commit 7cc37ca/5ed2532",
+        "blast_radius": "n/a",
+        "confidence": "high"
+      },
+      "workaround": "",
+      "related_ids": [],
+      "independent_failure_signature": "BUG-010-fixed"
+    },
+    {
+      "id": "BUG-REGRESSION-011",
+      "title": "回归验证通过(原BUG-011)",
+      "module": "regression",
+      "status": "fixed",
+      "severity": "S3",
+      "severity_basis": "已修复",
+      "priority": "P3",
+      "category": "regression",
+      "environment": "local node",
+      "preconditions": "",
+      "steps": "见 EXE",
+      "actual_result": "通过",
+      "expected_result": "通过",
+      "reproducibility": "n/a",
+      "repro_attempts": 1,
+      "first_failure_preserved": false,
+      "evidence_grade": "L3",
+      "evidence_ids": [
+        "EVD-MINIPROGRAMR-011"
+      ],
+      "impact": "无",
+      "analysis": {
+        "classification": "fixed",
+        "trigger_hypothesis": "已修复",
+        "change_correlation": "commit 7cc37ca/5ed2532",
+        "blast_radius": "n/a",
+        "confidence": "high"
+      },
+      "workaround": "",
+      "related_ids": [],
+      "independent_failure_signature": "BUG-011-fixed"
+    },
+    {
+      "id": "BUG-REGRESSION-012",
+      "title": "回归验证通过(原BUG-012)",
+      "module": "regression",
+      "status": "fixed",
+      "severity": "S3",
+      "severity_basis": "已修复",
+      "priority": "P3",
+      "category": "regression",
+      "environment": "local node",
+      "preconditions": "",
+      "steps": "见 EXE",
+      "actual_result": "通过",
+      "expected_result": "通过",
+      "reproducibility": "n/a",
+      "repro_attempts": 1,
+      "first_failure_preserved": false,
+      "evidence_grade": "L3",
+      "evidence_ids": [
+        "EVD-MINIPROGRAMR-012"
+      ],
+      "impact": "无",
+      "analysis": {
+        "classification": "fixed",
+        "trigger_hypothesis": "已修复",
+        "change_correlation": "commit 7cc37ca/5ed2532",
+        "blast_radius": "n/a",
+        "confidence": "high"
+      },
+      "workaround": "",
+      "related_ids": [],
+      "independent_failure_signature": "BUG-012-fixed"
+    },
+    {
+      "id": "BUG-REGRESSION-013",
+      "title": "回归验证通过(原BUG-013)",
+      "module": "regression",
+      "status": "fixed",
+      "severity": "S3",
+      "severity_basis": "已修复",
+      "priority": "P3",
+      "category": "regression",
+      "environment": "local node",
+      "preconditions": "",
+      "steps": "见 EXE",
+      "actual_result": "通过",
+      "expected_result": "通过",
+      "reproducibility": "n/a",
+      "repro_attempts": 1,
+      "first_failure_preserved": false,
+      "evidence_grade": "L3",
+      "evidence_ids": [
+        "EVD-MINIPROGRAMR-013"
+      ],
+      "impact": "无",
+      "analysis": {
+        "classification": "fixed",
+        "trigger_hypothesis": "已修复",
+        "change_correlation": "commit 7cc37ca/5ed2532",
+        "blast_radius": "n/a",
+        "confidence": "high"
+      },
+      "workaround": "",
+      "related_ids": [],
+      "independent_failure_signature": "BUG-013-fixed"
+    },
+    {
+      "id": "BUG-REGRESSION-014",
+      "title": "回归验证通过(原BUG-014)",
+      "module": "regression",
+      "status": "fixed",
+      "severity": "S3",
+      "severity_basis": "已修复",
+      "priority": "P3",
+      "category": "regression",
+      "environment": "local node",
+      "preconditions": "",
+      "steps": "见 EXE",
+      "actual_result": "通过",
+      "expected_result": "通过",
+      "reproducibility": "n/a",
+      "repro_attempts": 1,
+      "first_failure_preserved": false,
+      "evidence_grade": "L3",
+      "evidence_ids": [
+        "EVD-MINIPROGRAMR-014"
+      ],
+      "impact": "无",
+      "analysis": {
+        "classification": "fixed",
+        "trigger_hypothesis": "已修复",
+        "change_correlation": "commit 7cc37ca/5ed2532",
+        "blast_radius": "n/a",
+        "confidence": "high"
+      },
+      "workaround": "",
+      "related_ids": [],
+      "independent_failure_signature": "BUG-014-fixed"
+    },
+    {
+      "id": "BUG-REGRESSION-015",
+      "title": "回归验证通过(原BUG-015)",
+      "module": "regression",
+      "status": "fixed",
+      "severity": "S3",
+      "severity_basis": "已修复",
+      "priority": "P3",
+      "category": "regression",
+      "environment": "local node",
+      "preconditions": "",
+      "steps": "见 EXE",
+      "actual_result": "通过",
+      "expected_result": "通过",
+      "reproducibility": "n/a",
+      "repro_attempts": 1,
+      "first_failure_preserved": false,
+      "evidence_grade": "L3",
+      "evidence_ids": [
+        "EVD-MINIPROGRAMR-015"
+      ],
+      "impact": "无",
+      "analysis": {
+        "classification": "fixed",
+        "trigger_hypothesis": "已修复",
+        "change_correlation": "commit 7cc37ca/5ed2532",
+        "blast_radius": "n/a",
+        "confidence": "high"
+      },
+      "workaround": "",
+      "related_ids": [],
+      "independent_failure_signature": "BUG-015-fixed"
+    },
+    {
+      "id": "BUG-REGRESSION-016",
+      "title": "回归验证通过(原BUG-016)",
+      "module": "regression",
+      "status": "fixed",
+      "severity": "S3",
+      "severity_basis": "已修复",
+      "priority": "P3",
+      "category": "regression",
+      "environment": "local node",
+      "preconditions": "",
+      "steps": "见 EXE",
+      "actual_result": "通过",
+      "expected_result": "通过",
+      "reproducibility": "n/a",
+      "repro_attempts": 1,
+      "first_failure_preserved": false,
+      "evidence_grade": "L3",
+      "evidence_ids": [
+        "EVD-MINIPROGRAMR-016"
+      ],
+      "impact": "无",
+      "analysis": {
+        "classification": "fixed",
+        "trigger_hypothesis": "已修复",
+        "change_correlation": "commit 7cc37ca/5ed2532",
+        "blast_radius": "n/a",
+        "confidence": "high"
+      },
+      "workaround": "",
+      "related_ids": [],
+      "independent_failure_signature": "BUG-016-fixed"
+    },
+    {
+      "id": "BUG-REGRESSION-017",
+      "title": "回归验证通过(原BUG-017)",
+      "module": "regression",
+      "status": "fixed",
+      "severity": "S3",
+      "severity_basis": "已修复",
+      "priority": "P3",
+      "category": "regression",
+      "environment": "local node",
+      "preconditions": "",
+      "steps": "见 EXE",
+      "actual_result": "通过",
+      "expected_result": "通过",
+      "reproducibility": "n/a",
+      "repro_attempts": 1,
+      "first_failure_preserved": false,
+      "evidence_grade": "L3",
+      "evidence_ids": [
+        "EVD-017"
+      ],
+      "impact": "无",
+      "analysis": {
+        "classification": "fixed",
+        "trigger_hypothesis": "已修复",
+        "change_correlation": "commit 7cc37ca/5ed2532",
+        "blast_radius": "n/a",
+        "confidence": "high"
+      },
+      "workaround": "",
+      "related_ids": [],
+      "independent_failure_signature": "BUG-017-fixed"
+    },
+    {
+      "id": "BUG-REGRESSION-018",
+      "title": "回归验证通过(原BUG-018)",
+      "module": "regression",
+      "status": "fixed",
+      "severity": "S3",
+      "severity_basis": "已修复",
+      "priority": "P3",
+      "category": "regression",
+      "environment": "local node",
+      "preconditions": "",
+      "steps": "见 EXE",
+      "actual_result": "通过",
+      "expected_result": "通过",
+      "reproducibility": "n/a",
+      "repro_attempts": 1,
+      "first_failure_preserved": false,
+      "evidence_grade": "L3",
+      "evidence_ids": [
+        "EVD-018"
+      ],
+      "impact": "无",
+      "analysis": {
+        "classification": "fixed",
+        "trigger_hypothesis": "已修复",
+        "change_correlation": "commit 7cc37ca/5ed2532",
+        "blast_radius": "n/a",
+        "confidence": "high"
+      },
+      "workaround": "",
+      "related_ids": [],
+      "independent_failure_signature": "BUG-018-fixed"
+    },
+    {
+      "id": "BUG-REGRESSION-019",
+      "title": "回归验证通过(原BUG-019)",
+      "module": "regression",
+      "status": "fixed",
+      "severity": "S3",
+      "severity_basis": "已修复",
+      "priority": "P3",
+      "category": "regression",
+      "environment": "local node",
+      "preconditions": "",
+      "steps": "见 EXE",
+      "actual_result": "通过",
+      "expected_result": "通过",
+      "reproducibility": "n/a",
+      "repro_attempts": 1,
+      "first_failure_preserved": false,
+      "evidence_grade": "L3",
+      "evidence_ids": [
+        "EVD-019"
+      ],
+      "impact": "无",
+      "analysis": {
+        "classification": "fixed",
+        "trigger_hypothesis": "已修复",
+        "change_correlation": "commit 7cc37ca/5ed2532",
+        "blast_radius": "n/a",
+        "confidence": "high"
+      },
+      "workaround": "",
+      "related_ids": [],
+      "independent_failure_signature": "BUG-019-fixed"
+    },
+    {
+      "id": "BUG-REGRESSION-020",
+      "title": "回归验证通过(原BUG-020)",
+      "module": "regression",
+      "status": "fixed",
+      "severity": "S3",
+      "severity_basis": "已修复",
+      "priority": "P3",
+      "category": "regression",
+      "environment": "local node",
+      "preconditions": "",
+      "steps": "见 EXE",
+      "actual_result": "通过",
+      "expected_result": "通过",
+      "reproducibility": "n/a",
+      "repro_attempts": 1,
+      "first_failure_preserved": false,
+      "evidence_grade": "L3",
+      "evidence_ids": [
+        "EVD-020"
+      ],
+      "impact": "无",
+      "analysis": {
+        "classification": "fixed",
+        "trigger_hypothesis": "已修复",
+        "change_correlation": "commit 7cc37ca/5ed2532",
+        "blast_radius": "n/a",
+        "confidence": "high"
+      },
+      "workaround": "",
+      "related_ids": [],
+      "independent_failure_signature": "BUG-020-fixed"
+    }
+  ],
+  "bug_candidates": [],
+  "risks": [],
+  "acceptance_checks": [],
+  "blockers": [],
+  "manual_handoff": {
+    "required": false,
+    "status": "not_required",
+    "reason": "",
+    "target_platform": "",
+    "operator": "",
+    "prerequisites": [],
+    "case_ids": [],
+    "evidence_requirements": [],
+    "result_submission": []
+  },
+  "unverified": [
+    {
+      "id": "UNV-001",
+      "area": "前端 UI 真机",
+      "reason": "无微信开发者工具",
+      "impact": "前端改动未真机验证"
+    },
+    {
+      "id": "UNV-002",
+      "area": "生产环境 CORS_ORIGIN",
+      "reason": "未配环境变量",
+      "impact": "上线前需配"
+    },
+    {
+      "id": "UNV-003",
+      "area": "登录限流 429",
+      "reason": "本轮未触发(避免锁死)",
+      "impact": "代码已加,待生产验证"
+    }
+  ],
+  "coverage": {
+    "requirement_total": 5,
+    "requirement_linked": 5,
+    "requirement_unlinked": 0,
+    "p0_requirement_total": 4,
+    "p0_requirement_linked": 4,
+    "case_total": 16,
+    "case_status_counts": {
+      "通过": 16
+    },
+    "acceptance_total": 0,
+    "acceptance_status_counts": {}
+  },
+  "release_decision": {
+    "decision": "conditional_go",
+    "rationale": "16 项后端回归全部通过,上轮 P0/P1 修复生效。剩余 3 项部署侧事项: ①生产配 CORS_ORIGIN/JWT_SECRET/ADMIN_PASSWORD 环境变量; ②切 https 域名; ③真机 UI 回归。代码层面已可发布到预发。",
+    "blocking_bug_ids": [],
+    "conditions": [
+      "生产环境变量 JWT_SECRET/ADMIN_PASSWORD/CORS_ORIGIN 必须配置",
+      "前端 baseUrl 切到 https 备案域名",
+      "微信开发者工具跑通登录→列表→打印→历史主链路"
+    ]
+  },
+  "delivery_manifest": {
+    "source_revision": 2,
+    "outputs": [
+      {
+        "purpose": "deliverable",
+        "carrier": "lark_doc",
+        "format": "lark_doc",
+        "filename": "wenmokeji 小程序修复后回归-QA测试方案与报告",
+        "source_revision": 2,
+        "sha256": "d13b0165538ecf51731817475d0eea7ff3ba3fe1b039183a77421c824eedf7ac",
+        "locator": "https://bytedance.larkoffice.com/docx/VrTjdM12no4HItxX0a6cMbvKnzg",
+        "readback_receipt": "{\n  \"ok\": false,\n  \"identity\": \"user\",\n  \"error\": {\n    \"type\": \"validation\",\n    \"subtype\": \"invalid_argument\",\n    \"message\": \"unknown flag \\\"--document-id\\\" for \\\"lark-cli docs +fetch\\\"\",\n    \"hint",
+        "validated": false,
+        "status": "created"
+      }
+    ],
+    "fingerprint": "sha256:b6b1b9f8f3a05cb12ae94e2afd6f20020c2d527e3f161f4ab978f63012de0e60"
+  },
+  "test_data": {
+    "writes_allowed": true,
+    "accounts": [],
+    "created_records": [],
+    "cleanup": {
+      "required": true,
+      "status": "completed",
+      "command": "Stop-Process node",
+      "residuals": []
+    }
+  },
+  "disclosures": [
+    "非法执行等级 L3_reproducible（executions[].execution_level）",
+    "通过执行必须包含断言或证据（executions[]）",
+    "文件型证据必须提供路径（evidence[].path）",
+    "正式 Bug 字段不能为空；未知时明确写待补充及下一步（bugs[].preconditions）",
+    "正式 Bug 字段不能为空；未知时明确写待补充及下一步（bugs[].workaround）",
+    "正式 Bug 字段不能为空；未知时明确写待补充及下一步（bugs[].related_ids）",
+    "缺少或非法 reproducibility（bugs[].reproducibility）",
+    "必须记录合法 Bug 证据类别（bugs[].category）",
+    "引用不存在的证据 EVD-017（bugs[].evidence_ids）",
+    "正式 Bug 至少需要 L2_observation 证据；否则保留为缺陷候选或待确认（bugs[].evidence_ids）",
+    "引用不存在的证据 EVD-018（bugs[].evidence_ids）",
+    "引用不存在的证据 EVD-019（bugs[].evidence_ids）",
+    "引用不存在的证据 EVD-020（bugs[].evidence_ids）"
+  ]
+}
