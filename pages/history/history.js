@@ -1,16 +1,14 @@
 /**
- * 历史记录页逻辑
- * 1. 按设备 ID + 日期筛选拉取打印历史
- * 2. 下拉刷新 / 上拉分页
- * 3. 切换日期自动重置第一页
+ * 喷印记录页 —— 对接公司平台 /api/v1/inkjet_printer/list
+ * 记录本身没有公司字段时，通过设备列表按 dev_id 关联用户名称。
  */
 const api = require('../../utils/request')
 const config = require('../../utils/config')
+const deviceMapper = require('../../utils/deviceMapper')
 
 Page({
   data: {
-    deviceId: '',
-    date: '',            // 筛选日期 yyyy-MM-dd
+    date: '',
     list: [],
     page: 1,
     pageSize: config.pageSize,
@@ -18,61 +16,83 @@ Page({
     loading: false
   },
 
-  onLoad: function (options) {
-    this.setData({ deviceId: options.id || '' })
-    this.fetchList(true)
+  onLoad: function () {
+    this._companyMap = {}
+    this.loadCompanyMap().then(() => this.fetchList(true))
   },
 
-  // 下拉刷新
   onPullDownRefresh: function () {
-    this.fetchList(true).then(function () {
-      wx.stopPullDownRefresh()
-    })
+    this.loadCompanyMap()
+      .catch(function () {})
+      .then(() => this.fetchList(true))
+      .then(function () { wx.stopPullDownRefresh() })
   },
 
-  // 上拉加载
   onReachBottom: function () {
     if (this.data.hasMore && !this.data.loading) {
       this.fetchList(false)
     }
   },
 
-  // 日期变更
   onDateChange: function (e) {
     this.setData({ date: e.detail.value }, () => this.fetchList(true))
   },
 
-  // 清除日期
   clearDate: function () {
     this.setData({ date: '' }, () => this.fetchList(true))
   },
 
-  // 分享给朋友
   onShareAppMessage: function () {
     return {
-      title: '喷码打印历史记录 - 物联网云平台',
-      path: '/pages/history/history?id=' + this.data.deviceId
+      title: '喷印记录 - 文墨物联网',
+      path: '/pages/history/history'
     }
   },
 
-  /**
-   * 拉取历史记录
-   * @param {Boolean} reset 是否重置到第一页
-   */
+  loadCompanyMap: function () {
+    var that = this
+    return api.get('/device/list', {
+      page_num: 1,
+      page_size: 10000
+    }, { loading: false })
+      .then(function (res) {
+        var result = deviceMapper.parseDeviceListResponse(res)
+        var map = {}
+        result.list.forEach(function (device) {
+          if (device.deviceId) map[String(device.deviceId)] = device.companyName || ''
+        })
+        that._companyMap = map
+      })
+      .catch(function (err) {
+        console.warn('[history] loadCompanyMap error:', err)
+        that._companyMap = that._companyMap || {}
+      })
+  },
+
+  enrichRows: function (rows) {
+    var companyMap = this._companyMap || {}
+    return (rows || []).map(function (row) {
+      var deviceId = row.dev_id || row.device_id || row.deviceId || ''
+      var companyName = row.company_name || row.user_nickname || row.user_name || companyMap[String(deviceId)] || ''
+      return Object.assign({}, row, { companyName: companyName })
+    })
+  },
+
   fetchList: function (reset) {
-    const that = this
-    const page = reset ? 1 : this.data.page + 1
+    var that = this
+    var page = reset ? 1 : this.data.page + 1
+    var date = this.data.date ? this.data.date.replace(/-/g, '/') : null
     this.setData({ loading: true })
-    return api.get('/device/print/history', {
-      deviceId: this.data.deviceId,
-      date: this.data.date,
-      page: page,
-      pageSize: this.data.pageSize
+
+    return api.post('/inkjet_printer/list', {
+      date_range: [date, date],
+      page_num: page,
+      page_size: this.data.pageSize
     }, { loading: reset })
       .then(function (res) {
-        const rows = res.list || res.rows || res || []
-        const total = res.total || 0
-        const list = reset ? rows : that.data.list.concat(rows)
+        var rows = that.enrichRows(res && res.list ? res.list : [])
+        var total = (res && res.total) || 0
+        var list = reset ? rows : that.data.list.concat(rows)
         that.setData({
           list: list,
           page: page,
@@ -80,7 +100,8 @@ Page({
           loading: false
         })
       })
-      .catch(function () {
+      .catch(function (err) {
+        console.error('[history] fetchList error:', err)
         that.setData({ loading: false })
       })
   }

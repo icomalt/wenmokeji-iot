@@ -1,7 +1,6 @@
 /**
- * 首页：设备统计卡片 + 设备列表 + 添加/删除设备入口
- * 进入时拉取 /device/statistic 与 /device/list；onShow 每次刷新（含从其他页返回）。
- * 添加/删除设备前会通过 /auth/verify-admin 校验管理员密码。
+ * 首页：设备统计 + 只读功能入口
+ * 数据来自公司平台 /device/list，不执行添加、删除或设备下发。
  */
 const api = require('../../utils/request')
 const auth = require('../../utils/auth')
@@ -12,13 +11,13 @@ const deviceMapper = require('../../utils/deviceMapper')
 Page({
   data: {
     username: '',
-    deviceStat: { total: 0, online: 0, offline: 0, fault: 0 },
-    deviceList: [],
-    logoExists: true
+    isAdmin: false,
+    deviceStat: { total: 0, online: 0, inactive: 0, offline: 0 },
+    logoExists: true,
+    loading: true
   },
 
   onLoad: function () {
-    // 只有配置了 wsUrl 才订阅 WebSocket（公司平台暂无 WebSocket）
     if (config.wsUrl && ws.subscribe) {
       this._wsHandler = (msg) => this.handleWsMessage(msg)
       ws.subscribe(this._wsHandler)
@@ -33,22 +32,8 @@ Page({
   },
 
   handleWsMessage: function (msg) {
-    if (!msg || !msg.type) return
-    if (msg.type === 'device_list_change') {
-      this.loadDeviceList()
-      return
-    }
-    if (msg.type === 'device_status' && msg.data) {
-      var data = msg.data
-      var list = this.data.deviceList.map(function (d) {
-        if (d.deviceId === data.deviceId) {
-          return Object.assign({}, d, {
-            onlineStatus: data.onlineStatus !== undefined ? data.onlineStatus : d.onlineStatus
-          })
-        }
-        return d
-      })
-      this.setData({ deviceList: list })
+    if (msg && msg.type === 'device_list_change') {
+      this.loadDeviceStats()
     }
   },
 
@@ -57,158 +42,40 @@ Page({
   },
 
   onShow: function () {
-    // 每次进入页面刷新用户名
     var userInfo = auth.getUserInfo() || {}
-    var username = userInfo.name || userInfo.username || '用户'
-    this.setData({ username: username })
-    this.loadDeviceList()
+    this.setData({
+      username: userInfo.name || userInfo.username || '用户',
+      isAdmin: auth.isAdmin()
+    })
+    this.loadDeviceStats()
   },
 
   onPullDownRefresh: function () {
-    var that = this
-    this.loadDeviceList().then(function () {
+    this.loadDeviceStats().then(function () {
       wx.stopPullDownRefresh()
     })
   },
 
-  // 加载设备列表（从设备列表接口获取，前端计算统计）
-  loadDeviceList: function () {
+  loadDeviceStats: function () {
     var that = this
-    // 使用较大的 page_size 获取所有设备用于统计（类似Web平台的10000）
-    return api.get('/device/list', { page_num: 1, page_size: 10000 }, { loading: false })
-      .then(function (res) {
-        // 使用统一的解析方法
-        var result = deviceMapper.parseDeviceListResponse(res)
-        var list = result.list
-        var total = result.total
-        
-        // 计算统计
-        var stats = deviceMapper.calculateStats(list)
-        
-        // 首页只显示前10台设备
-        var displayList = list.slice(0, 10)
-        that.setData({
-          deviceList: displayList,
-          deviceStat: { 
-            total: total || stats.total, 
-            online: stats.online, 
-            offline: stats.offline, 
-            fault: stats.fault 
-          }
-        })
+    that.setData({ loading: true })
+
+    return api.get('/device/list', {
+      page_num: 1,
+      page_size: 10000
+    }, { loading: false })
+      .then(function (listRes) {
+        var result = deviceMapper.parseDeviceListResponse(listRes)
+        var stats = deviceMapper.calculateStats(result.list)
+        stats.total = result.total || stats.total
+        that.setData({ deviceStat: stats, loading: false })
       })
       .catch(function (err) {
-        console.error('[home] loadDeviceList error:', err)
-        that.setData({ 
-          deviceList: [], 
-          deviceStat: { total: 0, online: 0, offline: 0, fault: 0 } 
+        console.error('[home] loadDeviceStats error:', err)
+        that.setData({
+          deviceStat: { total: 0, online: 0, inactive: 0, offline: 0 },
+          loading: false
         })
-      })
-  },
-
-  // 验证管理员密码（调用后端 /auth/verify-admin 接口鉴权，避免前端硬编码密码）
-  verifyPassword: function (callback) {
-    wx.showModal({
-      title: '密码验证',
-      editable: true,
-      placeholderText: '请输入管理员密码',
-      success: function (res) {
-        if (!res.confirm) {
-          callback && callback(false)
-          return
-        }
-        var password = (res.content || '').trim()
-        if (!password) {
-          wx.showToast({ title: '密码不能为空', icon: 'none' })
-          callback && callback(false)
-          return
-        }
-        // 调用后端接口验证管理员密码，密码不在前端保存
-        api.post('/auth/verify-admin', { password: password }, { loading: false })
-          .then(function () {
-            callback && callback(true)
-          })
-          .catch(function () {
-            wx.showToast({ title: '密码错误', icon: 'none' })
-            callback && callback(false)
-          })
-      }
-    })
-  },
-
-  onAddDevice: function () {
-    var that = this
-    this.verifyPassword(function (passed) {
-      if (!passed) return
-      wx.showModal({
-        title: '添加设备',
-        editable: true,
-        placeholderText: '请输入设备ID',
-        success: function (res) {
-          if (!res.confirm) return
-          var deviceId = (res.content || '').trim()
-          if (!deviceId) {
-            wx.showToast({ title: '设备ID不能为空', icon: 'none' })
-            return
-          }
-          that.doAddDevice(deviceId)
-        }
-      })
-    })
-  },
-
-  doAddDevice: function (deviceId) {
-    var that = this
-    wx.showLoading({ title: '添加中...' })
-    api.post('/device/add', { device_id: deviceId }, { loading: false })
-      .then(function () {
-        wx.hideLoading()
-        wx.showToast({ title: '添加成功', icon: 'success' })
-        that.loadDeviceList()
-      })
-      .catch(function () {
-        wx.hideLoading()
-      })
-  },
-
-  onDeleteDevice: function () {
-    var that = this
-    if (this.data.deviceList.length === 0) {
-      wx.showToast({ title: '暂无设备可删除', icon: 'none' })
-      return
-    }
-    this.verifyPassword(function (passed) {
-      if (!passed) return
-      var items = that.data.deviceList.map(function (d) { return d.deviceName + ' (' + d.deviceId + ')' })
-      wx.showActionSheet({
-        itemList: items,
-        success: function (res) {
-          var device = that.data.deviceList[res.tapIndex]
-          wx.showModal({
-            title: '确认删除',
-            content: '确定删除设备「' + device.deviceName + '」吗？',
-            success: function (r) {
-              if (r.confirm) {
-                that.doDeleteDevice(device.deviceId)
-              }
-            }
-          })
-        }
-      })
-    })
-  },
-
-  doDeleteDevice: function (deviceId) {
-    var that = this
-    wx.showLoading({ title: '删除中...' })
-    api.post('/device/delete', { device_id: deviceId }, { loading: false })
-      .then(function () {
-        wx.hideLoading()
-        wx.showToast({ title: '删除成功', icon: 'success' })
-        that.loadDeviceList()
-      })
-      .catch(function () {
-        wx.hideLoading()
       })
   },
 
@@ -216,14 +83,12 @@ Page({
     wx.switchTab({ url: '/pages/device/device' })
   },
 
-  // 跳转到设备详情
-  goDetail: function (e) {
-    var id = e.currentTarget.dataset.id
-    if (!id) {
-      wx.showToast({ title: '设备ID无效', icon: 'none' })
-      return
-    }
-    wx.navigateTo({ url: '/pages/detail/detail?id=' + id })
+  goHistory: function () {
+    wx.navigateTo({ url: '/pages/history/history' })
+  },
+
+  goPrint: function () {
+    wx.navigateTo({ url: '/pages/print/print' })
   },
 
   onShareAppMessage: function () {
@@ -241,26 +106,17 @@ Page({
     }
   },
 
-  // 退出登录：先关闭 WebSocket，再调用后端 /auth/logout 使 token 失效，最后清理本地状态
   logout: function () {
     var that = this
     wx.showModal({
       title: '提示',
       content: '确定退出登录？',
       success: function (res) {
-        if (res.confirm) {
-          // 先关闭 WebSocket 连接
-          if (ws.closeAll) ws.closeAll()
-          // 调用后端登出接口，使 token 在服务端失效
-          api.post('/auth/logout', {}, { loading: false })
-            .catch(function () {
-              // 登出接口失败不阻塞，仍然清理本地登录态
-            })
-            .then(function () {
-              auth.clearAuth()
-              wx.reLaunch({ url: '/pages/login/login' })
-            })
-        }
+        if (!res.confirm) return
+        if (ws.closeAll) ws.closeAll()
+        that._wsHandler = null
+        auth.clearAuth()
+        wx.reLaunch({ url: '/pages/login/login' })
       }
     })
   }

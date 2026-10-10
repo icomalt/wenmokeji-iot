@@ -24,6 +24,15 @@ const corsOptions = {
 }
 app.use(cors(corsOptions))
 
+// 基本安全 HTTP 头（不引入 helmet，手动设置常用项）
+app.use(function (req, res, next) {
+  res.setHeader('X-Content-Type-Options', 'nosniff')
+  res.setHeader('X-Frame-Options', 'DENY')
+  res.setHeader('X-XSS-Protection', '1; mode=block')
+  res.setHeader('Referrer-Policy', 'no-referrer')
+  next()
+})
+
 app.use(express.json({ limit: '100kb' }))
 app.use(express.urlencoded({ extended: true, limit: '100kb' }))
 app.use(function (req, res, next) {

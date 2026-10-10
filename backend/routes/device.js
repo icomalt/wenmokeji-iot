@@ -48,7 +48,18 @@ router.get('/list', function (req, res) {
   res.json({ code: 0, message: 'success', data: { list: devices.slice(start, start + pageSize), total: devices.length } })
 })
 
-// 详情
+// 详情（/device/info 为前端实际调用路径，/detail 为兼容别名）
+router.get('/info', function (req, res) {
+  const deviceId = req.query.deviceId || req.query.device_id
+  if (!deviceId) return res.json({ code: 1, message: '缺少 deviceId', data: null })
+  if (!store.isDeviceOwnedByCustomer(deviceId, req.user.customerId)) {
+    return res.json({ code: 1, message: '设备不存在或无权访问', data: null })
+  }
+  const device = store.getDeviceById(deviceId)
+  if (!device) return res.json({ code: 1, message: '设备不存在', data: null })
+  res.json({ code: 0, message: 'success', data: { device } })
+})
+
 router.get('/detail', function (req, res) {
   const deviceId = req.query.deviceId || req.query.device_id
   if (!deviceId) return res.json({ code: 1, message: '缺少 deviceId', data: null })

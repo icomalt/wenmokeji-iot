@@ -69,6 +69,17 @@
   font-size: 26rpx;
   margin-top: 8rpx;
   letter-spacing: 2rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hero-logout {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.6);
+  padding: 8rpx 24rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.3);
+  border-radius: 8rpx;
 }
 
 /* 统计卡片网格 - 白底 + 左侧色条强调 */
@@ -79,7 +90,7 @@
   margin-top: -50rpx;
 }
 .stat-card {
-  width: 33.33%;
+  width: 25%;
   box-sizing: border-box;
   padding: 12rpx;
 }
@@ -96,6 +107,7 @@
   border: 1rpx solid #E2E8F0;
 }
 .stat-card.online .stat-num { color: #059669; }
+.stat-card.inactive .stat-num { color: #C2410C; }
 .stat-card.fault .stat-num { color: #DC2626; }
 .stat-card .stat-lbl {
   display: block;
@@ -162,8 +174,8 @@
   background: linear-gradient(135deg, #1A365D 0%, #2D4A7A 100%);
   color: #fff;
 }
-.mgmt-btn.del {
-  background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+.mgmt-btn.history {
+  background: linear-gradient(135deg, #0F766E 0%, #0D9488 100%);
   color: #fff;
 }
 .mgmt-btn:active {
@@ -231,6 +243,10 @@
 .tag-offline {
   background: #F1F5F9;
   color: #64748B;
+}
+.tag-inactive {
+  background: #FFF7ED;
+  color: #C2410C;
 }
 .tag-fault {
   background: #FEF2F2;

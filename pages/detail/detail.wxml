@@ -1,14 +1,11 @@
 <!--
-  设备详情页
-  展示：基本信息 / 用户信息 / 操作入口（下发打印）
+  设备详情页：展示公司平台 device/info 返回的只读信息。
 -->
 <view class="page">
-  <!-- 加载中 -->
   <view wx:if="{{!device && !loadDone}}" class="empty">
     <text class="empty-icon">📡</text>设备信息加载中...
   </view>
 
-  <!-- 不存在或无权限 -->
   <view wx:elif="{{!device && loadDone}}" class="empty">
     <text class="empty-icon">🚫</text>
     <text>设备不存在</text>
@@ -16,30 +13,51 @@
   </view>
 
   <block wx:else>
-    <!-- 设备基本信息 -->
     <view class="card">
       <view class="d-head">
         <text class="d-name">{{device.deviceName}}</text>
-        <text class="tag {{device.onlineStatus === 2 ? 'tag-online' : (device.onlineStatus === 1 ? 'tag-fault' : 'tag-offline')}}">{{device.statusText || (device.onlineStatus === 2 ? '在线' : (device.onlineStatus === 1 ? '故障' : '离线'))}}</text>
+        <text class="tag {{device.onlineStatus === 2 ? 'tag-online' : (device.onlineStatus === 1 ? 'tag-inactive' : 'tag-offline')}}">{{device.statusText}}</text>
       </view>
-      <view class="d-row"><text class="muted">设备ID</text><text>{{device.deviceId}}</text></view>
-      <view class="d-row"><text class="muted">设备类型</text><text class="tag tag-type">{{device.deviceType}}</text></view>
+      <view class="d-row"><text class="muted">设备ID</text><text>{{device.deviceId || '--'}}</text></view>
+      <view class="d-row"><text class="muted">产品型号</text><text class="tag tag-type">{{device.deviceType || '--'}}</text></view>
       <view class="d-row"><text class="muted">当前时间</text><text>{{currentTime}}</text></view>
     </view>
 
-    <!-- 用户/客户信息 -->
-    <view class="card" wx:if="{{username || device.customerName || device.lesseeName}}">
-      <view class="card-title">用户信息</view>
-      <view class="d-row" wx:if="{{username}}"><text class="muted">当前账号</text><text>{{username}}</text></view>
-      <view class="d-row"><text class="muted">客户名称</text><text>{{device.customerName || '--'}}</text></view>
-      <view class="d-row"><text class="muted">公司名称</text><text>{{device.lesseeName || '--'}}</text></view>
-      <view class="d-row" wx:if="{{device.lastLogin}}"><text class="muted">最近登录</text><text>{{device.lastLogin}}</text></view>
-      <view class="d-row" wx:if="{{device.onlineDuration}}"><text class="muted">在线时长</text><text>{{device.onlineDuration}}</text></view>
+    <view class="card">
+      <view class="card-title">设备状态</view>
+      <view class="d-row"><text class="muted">IMEI</text><text>{{device.imei || '--'}}</text></view>
+      <view class="d-row"><text class="muted">ICCID</text><text>{{device.iccid || '--'}}</text></view>
+      <view class="d-row"><text class="muted">信号强度</text><text>{{device.signalStrength || '--'}}</text></view>
+      <view class="d-row"><text class="muted">模组电压</text><text>{{device.batteryVoltage || '--'}}</text></view>
+      <view class="d-row"><text class="muted">通电状态</text><text>{{device.powerType || '--'}}</text></view>
+      <view class="d-row"><text class="muted">传感器数量</text><text>{{device.sensorCount || '--'}}</text></view>
+      <view class="d-row"><text class="muted">CPU 使用</text><text>{{device.cpu || '--'}}</text></view>
+      <view class="d-row"><text class="muted">内存使用</text><text>{{device.memoryUsage || '--'}}</text></view>
+      <view class="d-row"><text class="muted">硬盘使用</text><text>{{device.diskUsage || '--'}}</text></view>
+      <view class="d-row"><text class="muted">上行流量</text><text>{{device.upFlow || '--'}}</text></view>
+      <view class="d-row"><text class="muted">下行流量</text><text>{{device.downFlow || '--'}}</text></view>
     </view>
 
-    <!-- 操作按钮 -->
+    <view class="card" wx:if="{{device.latitude || device.longitude}}">
+      <view class="card-title">位置信息</view>
+      <view class="d-row"><text class="muted">纬度</text><text>{{device.latitude || '--'}}</text></view>
+      <view class="d-row"><text class="muted">经度</text><text>{{device.longitude || '--'}}</text></view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">用户与版本</view>
+      <view class="d-row" wx:if="{{username}}"><text class="muted">当前账号</text><text>{{username}}</text></view>
+      <view class="d-row"><text class="muted">公司名称</text><text>{{device.companyName || '--'}}</text></view>
+      <view class="d-row"><text class="muted">设备用户</text><text>{{device.customerName || '--'}}</text></view>
+      <view class="d-row"><text class="muted">DMS 版本</text><text>{{device.firmwareVersion || '--'}}</text></view>
+      <view class="d-row"><text class="muted">最近登录</text><text>{{device.lastLogin || '--'}}</text></view>
+      <view class="d-row"><text class="muted">在线时长</text><text>{{device.onlineDuration || '--'}}</text></view>
+      <view class="d-row"><text class="muted">离线时长</text><text>{{device.offlineDuration || '--'}}</text></view>
+      <view class="d-row"><text class="muted">更新时间</text><text>{{device.updateTime || '--'}}</text></view>
+    </view>
+
     <view class="actions">
-      <button class="btn-primary" bindtap="goPrint">下发打印</button>
+      <button class="btn-primary" bindtap="goPrint">喷码打印</button>
     </view>
   </block>
 </view>

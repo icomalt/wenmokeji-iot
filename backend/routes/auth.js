@@ -26,6 +26,23 @@ function loginRateLimit(req, res, next) {
   next()
 }
 
+// 管理员密码校验限流：更严格（5次/15分钟），防止暴力猜解
+const adminAttempts = new Map()
+function adminRateLimit(req, res, next) {
+  const ip = (req.headers['x-forwarded-for'] || req.ip || 'unknown').toString().split(',')[0].trim()
+  const now = Date.now()
+  const win = config.loginRateWindow
+  const max = 5
+  const rec = adminAttempts.get(ip) || { count: 0, first: now }
+  if (now - rec.first > win) { rec.count = 0; rec.first = now }
+  rec.count++
+  adminAttempts.set(ip, rec)
+  if (rec.count > max) {
+    return res.status(429).json({ code: 429, message: '尝试过于频繁，请 ' + Math.ceil(win / 60000) + ' 分钟后再试', data: null })
+  }
+  next()
+}
+
 // 登录
 router.post('/login', loginRateLimit, function (req, res) {
   const { username, password } = req.body
@@ -33,7 +50,7 @@ router.post('/login', loginRateLimit, function (req, res) {
     return res.json({ code: 1, message: '账号和密码不能为空', data: null })
   }
   const user = store.getUserByUsername(username)
-  if (!user || user.password !== password) {
+  if (!user || !store.verifyPassword(password, { hash: user.passwordHash, salt: user.passwordSalt })) {
     return res.json({ code: 1, message: '账号或密码错误', data: null })
   }
   const customer = store.getCustomerById(user.customerId)
@@ -90,8 +107,8 @@ router.post('/logout', function (req, res) {
   res.json({ code: 0, message: 'success', data: { success: true } })
 })
 
-// 管理员验证
-router.post('/verify-admin', function (req, res) {
+// 管理员验证（加限流防暴力猜解）
+router.post('/verify-admin', adminRateLimit, function (req, res) {
   const { password } = req.body
   if (!password) return res.json({ code: 1, message: '请输入密码', data: null })
   if (password === config.adminPassword) {

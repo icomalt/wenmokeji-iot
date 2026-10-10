@@ -23,15 +23,35 @@ function base64UrlDecode(str) {
   if (pad) {
     base64 += new Array(5 - pad).join('=')
   }
-  // 使用小程序自带的 base64 解码
   try {
     var arrayBuffer = wx.base64ToArrayBuffer(base64)
     var bytes = new Uint8Array(arrayBuffer)
-    var result = ''
-    for (var i = 0; i < bytes.length; i++) {
-      result += String.fromCharCode(bytes[i])
+    // 优先用 TextDecoder（基础库 2.22.0+），降级用手动 UTF-8 解码
+    if (typeof TextDecoder !== 'undefined') {
+      return new TextDecoder('utf-8').decode(bytes)
     }
-    return decodeURIComponent(escape(result))
+    // 手动 UTF-8 解码（兼容低版本基础库）
+    var result = ''
+    var i = 0
+    while (i < bytes.length) {
+      var b = bytes[i]
+      if (b < 0x80) {
+        result += String.fromCharCode(b)
+        i++
+      } else if (b < 0xE0) {
+        result += String.fromCharCode(((b & 0x1F) << 6) | (bytes[i + 1] & 0x3F))
+        i += 2
+      } else if (b < 0xF0) {
+        result += String.fromCharCode(((b & 0x0F) << 12) | ((bytes[i + 1] & 0x3F) << 6) | (bytes[i + 2] & 0x3F))
+        i += 3
+      } else {
+        var cp = ((b & 0x07) << 18) | ((bytes[i + 1] & 0x3F) << 12) | ((bytes[i + 2] & 0x3F) << 6) | (bytes[i + 3] & 0x3F)
+        cp -= 0x10000
+        result += String.fromCharCode(0xD800 + (cp >> 10), 0xDC00 + (cp & 0x3FF))
+        i += 4
+      }
+    }
+    return result
   } catch (e) {
     console.warn('[auth] base64UrlDecode 失败', e)
     return ''
@@ -229,6 +249,35 @@ module.exports = {
     } catch (e) {
       console.warn('[auth] clear 失败', e)
     }
+  },
+
+  /**
+   * 获取当前用户角色标识（来自 JWT 的 role 字段）
+   * 依据接口文档：admin / operator / viewer
+   * @returns {string} 角色标识
+   */
+  getRole() {
+    var info = this.getUserInfo() || {}
+    return info.role || ''
+  },
+
+  /**
+   * 获取当前用户角色ID（来自 JWT 的 role_id 字段）
+   * @returns {string|number} 角色ID
+   */
+  getRoleId() {
+    var info = this.getUserInfo() || {}
+    return info.roleId !== undefined ? info.roleId : ''
+  },
+
+  /**
+   * 判断是否为管理员（公司端）
+   * 依据接口文档 4.6 节：admin=管理员，拥有全部权限
+   * operator/viewer 为客户端用户
+   * @returns {boolean} true=管理员/公司端，false=客户端
+   */
+  isAdmin() {
+    return this.getRole() === 'admin'
   },
 
   /** 兼容旧代码的 clearAuth */

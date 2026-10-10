@@ -1,9 +1,10 @@
 /**
- * 打印下发页逻辑
- * 1. 接收 deviceId / deviceName 参数
- * 2. 表单校验 → 调用 /device/print/dispatch → 成功后返回
- * 3. 提交期间禁用按钮，防止重复下发
- * 4. 插入时间：自由配置年/月/日/时/分/秒格式与连接符，确认后直接插入内容框
+ * 喷码打印页 —— 对接公司平台 /api/v1/inkjet_printer/*
+ * 1. 从 /inkjet_printer/k300_list 加载可喷印设备
+ * 2. 输入内容，可插入格式化时间
+ * 3. 用户确认后调用 /inkjet_printer/start 下发
+ *
+ * 注意：开发/联调期间禁止自动或批量调用 start 接口。
  */
 const api = require('../../utils/request')
 const deviceMapper = require('../../utils/deviceMapper')
@@ -12,13 +13,13 @@ Page({
   data: {
     deviceId: '',
     deviceName: '',
+    deviceCompanyName: '',
+    deviceStatusText: '',
+    deviceOptions: [],
+    selectedDevIndex: 0,
     content: '',
-    fontSize: 16,
-    count: 1,
-    immediate: true,
     submitting: false,
 
-    // ===== 时间格式配置弹窗 =====
     showTimeModal: false,
     yearOptions: ['空', '2位(26)', '4位(2026)'],
     partOptions: ['空', '1位(8)', '2位(08)'],
@@ -34,39 +35,87 @@ Page({
   },
 
   onLoad: function (options) {
-    this.setData({
-      deviceId: options.id || '',
-      deviceName: options.name ? decodeURIComponent(options.name) : ''
-    })
-    if (options.id && !options.name) {
-      var that = this
-      api.get('/device/info', { device_id: options.id }, { loading: false })
-        .then(function (res) {
-          var device = deviceMapper.parseDeviceDetailResponse(res)
-          if (device) {
-            that.setData({ deviceName: device.deviceName || '' })
-          }
-        })
-        .catch(function (err) {
-          console.warn('[print] fetch device info error:', err)
-        })
-    }
+    this._preferredDeviceId = options.id ? decodeURIComponent(options.id) : ''
+    this.fetchDevices()
   },
 
-  // 文本/数字输入
+  fetchDevices: function () {
+    var that = this
+    return api.post('/inkjet_printer/k300_list', {}, { loading: true })
+      .then(function (res) {
+        var result = deviceMapper.parseDeviceListResponse(res)
+        var devices = result.list.filter(function (d) { return !!d.deviceId })
+        if (devices.length === 0) {
+          wx.showToast({ title: '暂无可喷印设备', icon: 'none' })
+          that.setData({ deviceOptions: [] })
+          return
+        }
+
+        var selectedIndex = that._preferredDeviceId ? -1 : 0
+        if (that._preferredDeviceId) {
+          devices.some(function (d, index) {
+            if (String(d.deviceId) === String(that._preferredDeviceId)) {
+              selectedIndex = index
+              return true
+            }
+            return false
+          })
+        }
+        if (selectedIndex < 0) {
+          that.setData({
+            deviceOptions: devices.map(function (d) {
+              return { label: d.companyName ? d.deviceId + '（' + d.companyName + '）' : d.deviceId, value: d.deviceId, statusText: d.statusText, companyName: d.companyName }
+            }),
+            selectedDevIndex: 0,
+            deviceId: '',
+            deviceName: '',
+            deviceCompanyName: '',
+            deviceStatusText: ''
+          })
+          wx.showToast({ title: '当前设备不支持喷码打印', icon: 'none' })
+          return
+        }
+        that.applySelectedDevice(devices, selectedIndex)
+      })
+      .catch(function (err) {
+        console.error('[print] fetchDevices error:', err)
+      })
+  },
+
+  applySelectedDevice: function (devices, index) {
+    var selected = devices[index] || {}
+    this.setData({
+      deviceOptions: devices.map(function (d) {
+        return {
+          label: d.companyName ? d.deviceId + '（' + d.companyName + '）' : d.deviceId,
+          value: d.deviceId,
+          statusText: d.statusText,
+          companyName: d.companyName
+        }
+      }),
+      selectedDevIndex: index,
+      deviceId: selected.deviceId || '',
+      deviceName: selected.deviceName || selected.deviceId || '',
+      deviceCompanyName: selected.companyName || '',
+      deviceStatusText: selected.statusText || ''
+    })
+  },
+
+  onDeviceChange: function (e) {
+    this.applySelectedDevice(this.data.deviceOptions.map(function (d) {
+      return {
+        deviceId: d.value,
+        deviceName: d.label,
+        statusText: d.statusText,
+        companyName: d.companyName
+      }
+    }), Number(e.detail.value))
+  },
+
   onInput: function (e) {
     this.setData({ [e.currentTarget.dataset.key]: e.detail.value })
   },
-  // 滑块
-  onSlider: function (e) {
-    this.setData({ [e.currentTarget.dataset.key]: e.detail.value })
-  },
-  // 开关
-  onSwitch: function (e) {
-    this.setData({ [e.currentTarget.dataset.key]: e.detail.value })
-  },
 
-  // ========== 时间格式弹窗 ==========
   openTimeModal: function () {
     this.updatePreview()
     this.setData({ showTimeModal: true })
@@ -109,11 +158,6 @@ Page({
     this.updatePreview()
   },
 
-  /**
-   * 根据当前配置生成时间字符串
-   * 年/月/日用 dateSeparator 连接，时/分/秒用 timeSeparator 连接
-   * 两部分之间用空格分隔
-   */
   buildTimeString: function () {
     var d = new Date()
     var pad = function (n) { return n < 10 ? '0' + n : '' + n }
@@ -146,44 +190,37 @@ Page({
     this.setData({ timePreview: preview || '（无）' })
   },
 
-  // 确认插入时间：直接追加到打印内容框
   confirmTimeFormat: function () {
     var timeStr = this.buildTimeString()
     if (!timeStr) {
       wx.showToast({ title: '请至少选择一个时间字段', icon: 'none' })
       return
     }
-    var newContent = this.data.content
-    if (newContent) {
-      newContent = newContent + ' ' + timeStr
-    } else {
-      newContent = timeStr
-    }
-    this.setData({ content: newContent, showTimeModal: false })
+    var content = this.data.content
+    this.setData({
+      content: content ? content + ' ' + timeStr : timeStr,
+      showTimeModal: false
+    })
   },
 
-  // 分享
   onShareAppMessage: function () {
     return {
-      title: '喷码打印下发 - 物联网云平台',
-      path: '/pages/print/print?id=' + this.data.deviceId
+      title: '喷码打印 - 文墨物联网',
+      path: '/pages/print/print?id=' + encodeURIComponent(this.data.deviceId)
     }
   },
 
-  // 下发
   onSubmit: function () {
-    var that = this
-    // BUG-019 修复：入口防重入，避免双击重复提交
     if (this.data.submitting) return
-    var data = this.data
-    var deviceId = data.deviceId
-    var content = data.content
-    var fontSize = Number(data.fontSize)
-    var count = Number(data.count)
-    var immediate = data.immediate
 
+    var deviceId = this.data.deviceId
+    var content = this.data.content
     if (!deviceId) {
-      wx.showToast({ title: '缺少设备信息', icon: 'none' })
+      wx.showToast({ title: '请选择喷码设备', icon: 'none' })
+      return
+    }
+    if (this.data.deviceStatusText === '离线') {
+      wx.showToast({ title: '设备离线，无法下发', icon: 'none' })
       return
     }
     if (!content) {
@@ -194,34 +231,21 @@ Page({
       wx.showToast({ title: '打印内容不能超过 500 字', icon: 'none' })
       return
     }
-    if (isNaN(count) || count < 1) {
-      wx.showToast({ title: '喷印次数需为≥1的数字', icon: 'none' })
-      return
-    }
-    if (count > 99) {
-      wx.showToast({ title: '单次最多 99 次', icon: 'none' })
-      return
-    }
 
     this.setData({ submitting: true })
-    api.post('/device/print/dispatch', {
-      device_id: deviceId,
-      content: content,
-      font_size: fontSize,
-      print_count: count,
-      immediate: immediate ? 1 : 0
-    })
+    api.post('/inkjet_printer/start', {
+      dev_id: deviceId,
+      content: content
+    }, { loading: true })
       .then(function () {
-        wx.showToast({ title: '下发成功', icon: 'success' })
-        setTimeout(function () {
-          wx.navigateBack()
-        }, 800)
+        wx.showToast({ title: '喷印成功', icon: 'success' })
+        setTimeout(function () { wx.navigateBack() }, 800)
       })
       .catch(function (err) {
-        console.error('[print] dispatch error:', err)
+        console.error('[print] start error:', err)
       })
       .then(function () {
-        that.setData({ submitting: false })
-      })
+        this.setData({ submitting: false })
+      }.bind(this))
   }
 })

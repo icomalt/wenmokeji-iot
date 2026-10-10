@@ -4,17 +4,17 @@
 
   <view class="section">
     <view class="h2">一、我们收集的信息</view>
-    <view class="p">为了向您提供设备管理、打印下发、历史查询等核心功能，我们会收集以下信息：</view>
+    <view class="p">为了向您提供设备状态查询、喷码打印、记录查询等核心功能，我们会收集以下信息：</view>
     <view class="p">1. 账号信息：您登录时输入的用户名和密码，用于身份认证；</view>
-    <view class="p">2. 设备信息：您绑定的喷码机设备编号、在线状态、故障状态、最近打印内容及时间；</view>
+    <view class="p">2. 设备信息：您绑定的喷码机设备编号、在线状态、激活状态、最近喷印内容及时间；</view>
     <view class="p">3. 操作日志：您的打印下发记录、查询记录及操作时间。</view>
   </view>
 
   <view class="section">
     <view class="h2">二、信息的使用</view>
     <view class="p">我们仅在为您提供以下服务时使用上述信息：</view>
-    <view class="p">1. 完成设备绑定、状态查询与打印下发；</view>
-    <view class="p">2. 展示打印历史与统计；</view>
+    <view class="p">1. 完成设备状态查询与喷码打印；</view>
+    <view class="p">2. 展示喷印记录与统计；</view>
     <view class="p">3. 保障账号安全，进行登录态校验与异常操作识别。</view>
   </view>
 

@@ -68,8 +68,25 @@ const CURRENT_ENV = 'dev'
 const active = ENV[CURRENT_ENV] || ENV.dev
 
 // ============ 发布前安全校验 ============
-if (CURRENT_ENV === 'prod' && active.mock) {
-  console.error('[config] 警告：生产环境不应开启 mock！请检查配置。')
+if (CURRENT_ENV === 'prod') {
+  if (active.mock) {
+    console.error('[config] 严重：生产环境开启了 mock！请立即关闭。')
+  }
+  // 微信小程序正式版强制 HTTPS，禁止 HTTP
+  if (active.baseUrl.indexOf('http://') === 0) {
+    console.error('[config] 严重：生产环境 baseUrl 必须是 HTTPS，当前为 ' + active.baseUrl)
+  }
+  // 占位域名检测
+  if (active.baseUrl.indexOf('your-domain.com') !== -1) {
+    console.error('[config] 严重：生产环境仍使用占位域名，请替换为真实备案域名。')
+  }
+  if (active.wsUrl && active.wsUrl.indexOf('ws://') === 0) {
+    console.error('[config] 严重：生产环境 WebSocket 必须是 wss://，当前为 ' + active.wsUrl)
+  }
+}
+// 开发环境用 IP+HTTP 仅用于调试，微信开发者工具需勾选"不校验合法域名"
+if (CURRENT_ENV === 'dev' && active.baseUrl.indexOf('http://') === 0) {
+  console.warn('[config] 开发环境使用 HTTP/IP，正式发布前必须改为 HTTPS 域名。')
 }
 
 // ============ 全局导出 ============

@@ -19,8 +19,9 @@ Page({
     pageSize: config.pageSize,
     hasMore: true,
     loading: false,
+    loadError: false,
     wsConnected: false,
-    wsEnabled: !!config.wsUrl  // 公司平台暂无 WebSocket，根据配置决定是否显示连接状态
+    wsEnabled: !!config.wsUrl
   },
 
   onLoad: function () {
@@ -58,6 +59,10 @@ Page({
     }, 400)
   },
 
+  onRetry: function () {
+    this.fetchList(true)
+  },
+
   /**
    * 拉取设备列表（平台参数 page_num/page_size）
    * @param {Boolean} reset 是否重置到第一页
@@ -65,14 +70,14 @@ Page({
   fetchList: function (reset) {
     var that = this
     var page = reset ? 1 : this.data.page + 1
-    this.setData({ loading: true })
+    this.setData({ loading: true, loadError: false })
     // 平台使用 page_num/page_size 参数
     var params = {
       page_num: page,
       page_size: this.data.pageSize
     }
     if (this.data.keyword) {
-      params.device_name = this.data.keyword
+      params.device_id = this.data.keyword
     }
     return api.get('/device/list', params, { loading: reset })
       .then(function (res) {
@@ -93,7 +98,10 @@ Page({
       })
       .catch(function (err) {
         console.error('[device] fetchList error:', err)
-        that.setData({ loading: false })
+        that.setData({
+          loading: false,
+          loadError: reset
+        })
       })
   },
 
@@ -106,8 +114,10 @@ Page({
     if (!id) return
     var list = this.data.list.map(function (d) {
       if (d.deviceId === id) {
+        var status = item.onlineStatus !== undefined ? item.onlineStatus : d.onlineStatus
         return Object.assign({}, d, {
-          onlineStatus: item.onlineStatus !== undefined ? item.onlineStatus : d.onlineStatus
+          onlineStatus: status,
+          statusText: deviceMapper.getStatusText(status)
         })
       }
       return d
@@ -124,6 +134,8 @@ Page({
 
   goDetail: function (e) {
     var id = e.currentTarget.dataset.id
-    wx.navigateTo({ url: '/pages/detail/detail?id=' + id })
+    var status = e.currentTarget.dataset.status || ''
+    var company = e.currentTarget.dataset.company || ''
+    wx.navigateTo({ url: '/pages/detail/detail?id=' + encodeURIComponent(id) + '&status=' + status + '&company=' + encodeURIComponent(company) })
   }
 })

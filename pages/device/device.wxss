@@ -107,6 +107,10 @@
   background: #F1F5F9;
   color: #64748B;
 }
+.tag-inactive {
+  background: #FFF7ED;
+  color: #C2410C;
+}
 .tag-fault {
   background: #FEF2F2;
   color: #DC2626;

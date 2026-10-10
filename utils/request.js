@@ -4,7 +4,7 @@
  * 功能：
  *  1. 自动拼接 baseUrl，统一携带 token 鉴权（Authorization: Bearer xxx）
  *  2. 全局 loading（可通过 loading:false 关闭）
- *  3. 401 直接清除登录态并跳转登录页（平台无 refreshToken 机制）
+ *  3. 401 清除登录态并跳转登录页；402 仅提示无权限，不跳登录页（平台无 refreshToken 机制）
  *  4. 请求失败自动重试（retryTimes 次，retryDelay 间隔）
  *  5. 可配置请求超时（requestTimeout）
  *  6. 断网 / 超时统一 toast 提示
@@ -13,6 +13,15 @@
  */
 const config = require('./config')
 const auth = require('./auth')
+
+// toast 节流：1.5秒内只弹一次，避免多请求同时失败时互相覆盖
+let _lastToastTime = 0
+function showErrorToast(msg) {
+  var now = Date.now()
+  if (now - _lastToastTime < 1500) return
+  _lastToastTime = now
+  wx.showToast({ title: msg, icon: 'none' })
+}
 
 // ============ Mock 模式 ============
 if (config.mock) {
@@ -96,7 +105,7 @@ if (config.mock) {
           // 401：token 过期，平台无 refreshToken 机制，直接跳登录
           if (res.statusCode === 401) {
             auth.clear()
-            wx.showToast({ title: '登录已失效，请重新登录', icon: 'none' })
+            showErrorToast('登录已失效，请重新登录')
             setTimeout(function () {
               wx.reLaunch({ url: '/pages/login/login' })
             }, 1000)
@@ -114,16 +123,35 @@ if (config.mock) {
               }, config.retryDelay)
               return
             }
-            wx.showToast({ title: '请求失败(' + res.statusCode + ')', icon: 'none' })
+            showErrorToast('请求失败(' + res.statusCode + ')')
             reject(new Error('请求失败 ' + res.statusCode))
             return
           }
 
           const body = res.data || {}
+          const businessCode = Number(body.code)
+
+          // 401：未登录/登录失效，清除登录态并跳转登录页
+          if (businessCode === 401) {
+            auth.clear()
+            showErrorToast('登录已失效，请重新登录')
+            setTimeout(function () {
+              wx.reLaunch({ url: '/pages/login/login' })
+            }, 1000)
+            reject(new Error(body.message || '未授权'))
+            return
+          }
+          // 402：无操作权限，仅提示，不清除登录态、不跳转登录页
+          if (businessCode === 402) {
+            showErrorToast(body.message || '无操作权限')
+            reject(new Error(body.message || '无操作权限'))
+            return
+          }
+
           // 业务层带 code 字段（兼容 code=0 和 code=200 两种成功格式）
           if (body.code !== undefined) {
-            if (body.code !== 0 && body.code !== 200) {
-              wx.showToast({ title: body.message || '业务异常', icon: 'none' })
+            if (businessCode !== 0 && businessCode !== 200) {
+              showErrorToast(body.message || '业务异常')
               reject(new Error(body.message || '业务异常'))
               return
             }
@@ -146,7 +174,7 @@ if (config.mock) {
           }
 
           // 断网 / 超时统一提示
-          wx.showToast({ title: '网络异常，请检查网络', icon: 'none' })
+          showErrorToast('网络异常，请检查网络')
           reject(err)
         }
       })

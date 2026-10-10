@@ -92,6 +92,12 @@
   color: #0F172A;
 }
 
+.device-state {
+  margin-top: 14rpx;
+  font-size: 24rpx;
+  color: #64748B;
+}
+
 .actions {
   padding: 40rpx 24rpx;
 }

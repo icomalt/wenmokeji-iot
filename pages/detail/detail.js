@@ -24,9 +24,11 @@ Page({
     var userInfo = auth.getUserInfo() || {}
     var username = userInfo.name || userInfo.username || '用户'
     this.setData({ 
-      deviceId: options.id || '',
+      deviceId: options.id ? decodeURIComponent(options.id) : '',
       username: username
     })
+    this._routeStatus = Number(options.status) || 0
+    this._routeCompanyName = options.company ? decodeURIComponent(options.company) : ''
     this.fetchDetail(true)
     // 只有配置了 wsUrl 才订阅 WebSocket（公司平台暂无 WebSocket）
     if (config.wsUrl && ws.subscribe) {
@@ -41,6 +43,13 @@ Page({
     if (this.data.deviceId && this.data.device) {
       this.fetchDetail(false)
     }
+    // 回前台时恢复时钟
+    this.startTimer()
+  },
+
+  onHide: function () {
+    // 切后台时暂停时钟，省性能
+    this.clearTimer()
   },
 
   onUnload: function () {
@@ -52,6 +61,7 @@ Page({
   },
 
   startTimer: function () {
+    this.clearTimer()
     var that = this
     this.updateTime()
     this._timer = setInterval(function () {
@@ -85,6 +95,14 @@ Page({
       .then(function (res) {
         // 使用统一的 deviceMapper 解析响应
         var device = deviceMapper.parseDeviceDetailResponse(res)
+        var rawInfo = res && res.info ? res.info : (res && res.data && res.data.info ? res.data.info : null)
+        if (device && that._routeStatus && (!rawInfo || rawInfo.status === undefined || rawInfo.status === null)) {
+          device.onlineStatus = that._routeStatus
+          device.statusText = deviceMapper.getStatusText(that._routeStatus)
+        }
+        if (device && !device.companyName && that._routeCompanyName) {
+          device.companyName = that._routeCompanyName
+        }
         
         if (!device) {
           that.setData({ device: null, loadDone: true })
@@ -103,8 +121,10 @@ Page({
     if (!msg || !msg.data) return
     var data = msg.data
     if (msg.type === 'device_status' && data.deviceId === this.data.deviceId) {
+      var status = data.onlineStatus !== undefined ? data.onlineStatus : (this.data.device && this.data.device.onlineStatus)
       this.setData({
-        'device.onlineStatus': data.onlineStatus !== undefined ? data.onlineStatus : (this.data.device && this.data.device.onlineStatus)
+        'device.onlineStatus': status,
+        'device.statusText': deviceMapper.getStatusText(status)
       })
     }
   },
@@ -112,7 +132,7 @@ Page({
   onShareAppMessage: function () {
     return {
       title: this.data.device ? this.data.device.deviceName + ' - 喷码机设备详情' : '喷码机设备详情',
-      path: '/pages/detail/detail?id=' + this.data.deviceId
+      path: '/pages/detail/detail?id=' + encodeURIComponent(this.data.deviceId)
     }
   },
 
@@ -121,7 +141,7 @@ Page({
       wx.showToast({ title: '设备信息未加载', icon: 'none' })
       return
     }
-    var url = '/pages/print/print?id=' + this.data.deviceId + '&name=' + encodeURIComponent(this.data.device.deviceName || '')
+    var url = '/pages/print/print?id=' + encodeURIComponent(this.data.deviceId) + '&name=' + encodeURIComponent(this.data.device.deviceName || '')
     wx.navigateTo({ url: url })
   }
 })

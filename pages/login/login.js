@@ -28,7 +28,8 @@ Page({
       wx.reLaunch({ url: '/pages/home/home' })
       return
     }
-    // 读取记住的账号    var savedUser = wx.getStorageSync('iot_saved_user') || ''
+    // 读取记住的账号
+    var savedUser = wx.getStorageSync('iot_saved_user') || ''
     this.setData({ username: savedUser })
     // 加载验证码
     if (!config.mock) {
@@ -150,6 +151,7 @@ Page({
             username: dataObj.user_name || jwtUserInfo.user_name || username,
             name: dataObj.user_nickname || jwtUserInfo.user_nickname || username,
             mobile: jwtUserInfo.mobile,
+            role: dataObj.role || jwtUserInfo.role || '',
             roleId: jwtUserInfo.role_id,
             address: jwtUserInfo.address,
             tenantId: jwtUserInfo.tenant_id

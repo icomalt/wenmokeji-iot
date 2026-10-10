@@ -1,7 +1,7 @@
 <!--
   首页（Tab）
   功能：欢迎栏 + 设备统计概览 + 快捷功能入口
-  数据来源：/device/statistic
+  数据来源：/device/list
 -->
 <view class="page">
   <!-- 顶部欢迎栏 -->
@@ -15,62 +15,57 @@
         <text class="hero-title">文墨喷码</text>
       </view>
     </view>
-    <view class="hero-sub">欢迎，{{username}}</view>
+    <view class="hero-sub">
+      <text>欢迎，{{username}}</text>
+      <text class="hero-logout" bindtap="logout">退出</text>
+    </view>
   </view>
 
   <!-- 统计卡片 -->
-  <view class="stat-grid">
+  <view wx:if="{{loading}}" class="stat-grid">
+    <view class="stat-card" wx:for="{{[1,2,3,4]}}" wx:key="*this">
+      <view class="skeleton" style="height: 120rpx; border-radius: 16rpx;"></view>
+    </view>
+  </view>
+  <view wx:else class="stat-grid">
     <view class="stat-card" bindtap="goDevice">
       <text class="stat-num">{{deviceStat.total || 0}}</text>
       <text class="stat-lbl">设备总数</text>
     </view>
     <view class="stat-card online" bindtap="goDevice">
       <text class="stat-num">{{deviceStat.online || 0}}</text>
-      <text class="stat-lbl">在线设备</text>
+      <text class="stat-lbl">在线</text>
     </view>
-    <view class="stat-card fault" bindtap="goDevice">
+    <view class="stat-card inactive" bindtap="goDevice">
+      <text class="stat-num">{{deviceStat.inactive || 0}}</text>
+      <text class="stat-lbl">未激活</text>
+    </view>
+    <view class="stat-card" bindtap="goDevice">
       <text class="stat-num">{{deviceStat.offline || 0}}</text>
-      <text class="stat-lbl">离线设备</text>
+      <text class="stat-lbl">离线</text>
     </view>
   </view>
 
-  <!-- 设备管理区域 -->
+  <!-- 设备管理区域（双角色适配） -->
   <view class="card">
-    <view class="card-title">设备管理</view>
+    <view class="card-title">{{isAdmin ? '设备总览' : '我的设备'}}</view>
     <view class="mgmt-btns">
-      <view class="mgmt-btn add" bindtap="onAddDevice">
-        <text class="mgmt-icon">+</text>
-        <text class="mgmt-lbl">添加设备</text>
+      <!-- 公司端（admin）：设备列表入口 -->
+      <view class="mgmt-btn add" bindtap="goDevice" wx:if="{{isAdmin}}">
+        <text class="mgmt-icon">▣</text>
+        <text class="mgmt-lbl">设备列表</text>
       </view>
-      <view class="mgmt-btn del" bindtap="onDeleteDevice">
-        <text class="mgmt-icon">−</text>
-        <text class="mgmt-lbl">删除设备</text>
+      <!-- 客户端（operator/viewer）：远程喷印入口 -->
+      <view class="mgmt-btn add" bindtap="goPrint" wx:else>
+        <text class="mgmt-icon">▶</text>
+        <text class="mgmt-lbl">远程喷印</text>
       </view>
-    </view>
-  </view>
-
-  <!-- 设备列表 -->
-  <view class="card">
-    <view class="card-title">我的设备</view>
-    <view wx:if="{{deviceList.length === 0}}" class="empty">
-      <text class="empty-icon">📭</text>
-      <text>暂无设备</text>
-      <text class="empty-tip">请点击「添加设备」添加新设备</text>
-    </view>
-    <view wx:for="{{deviceList}}" wx:key="deviceId" class="device-item" bindtap="goDetail" data-id="{{item.deviceId}}">
-      <view class="device-info">
-        <text class="device-name">{{item.deviceName}}</text>
-        <text class="device-id">{{item.deviceId}}</text>
-        <text class="device-lessee">租户：{{item.lesseeName || '--'}}</text>
-      </view>
-      <view class="device-tags">
-        <text class="tag tag-type">{{item.deviceType}}</text>
-        <text class="tag {{item.onlineStatus === 2 ? 'tag-online' : (item.onlineStatus === 1 ? 'tag-fault' : 'tag-offline')}}">{{item.statusText || '离线'}}</text>
+      <view class="mgmt-btn history" bindtap="goHistory">
+        <text class="mgmt-icon">▤</text>
+        <text class="mgmt-lbl">喷印记录</text>
       </view>
     </view>
   </view>
 
   <view class="footer-tip">Industrial Inkjet IoT Cloud v1.0</view>
-
-  <view class="logout" bindtap="logout">退出登录</view>
 </view>

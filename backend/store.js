@@ -1,10 +1,32 @@
 /**
  * 内存数据存储
  */
+const crypto = require('crypto')
+
+// 密码哈希：用 scrypt（Node.js 内置，无需 bcrypt 依赖）
+function hashPassword(password, salt) {
+  // 每个用户一个随机 salt；首次创建时生成
+  var s = salt || crypto.randomBytes(16).toString('hex')
+  var hash = crypto.scryptSync(password, s, 64).toString('hex')
+  return { salt: s, hash: hash }
+}
+
+// 校验密码
+function verifyPassword(password, stored) {
+  if (!stored || !stored.salt || !stored.hash) return false
+  var check = crypto.scryptSync(password, stored.salt, 64).toString('hex')
+  return crypto.timingSafeEqual(Buffer.from(check, 'hex'), Buffer.from(stored.hash, 'hex'))
+}
+
+// 初始化用户密码哈希（演示账号密码均为 123456）
+var _adminPwd = hashPassword('123456')
+var _user2Pwd = hashPassword('123456')
+var _user3Pwd = hashPassword('123456')
+
 const users = [
-  { id: 'U001', username: 'admin', password: '123456', customerId: 'C001', role: 'admin' },
-  { id: 'U002', username: 'user002', password: '123456', customerId: 'C002', role: 'user' },
-  { id: 'U003', username: 'user003', password: '123456', customerId: 'C003', role: 'user' }
+  { id: 'U001', username: 'admin', passwordHash: _adminPwd.hash, passwordSalt: _adminPwd.salt, customerId: 'C001', role: 'admin' },
+  { id: 'U002', username: 'user002', passwordHash: _user2Pwd.hash, passwordSalt: _user2Pwd.salt, customerId: 'C002', role: 'user' },
+  { id: 'U003', username: 'user003', passwordHash: _user3Pwd.hash, passwordSalt: _user3Pwd.salt, customerId: 'C003', role: 'user' }
 ]
 
 const customers = [
@@ -104,5 +126,6 @@ module.exports = {
   refreshTokens, tokenBlacklist, now,
   getDevicesByCustomer, getDeviceById, getUserByUsername, getCustomerById,
   isDeviceOwnedByCustomer, bindDeviceToCustomer, unbindDeviceFromCustomer,
-  addHistoryRecord, getHistoryByDevice
+  addHistoryRecord, getHistoryByDevice,
+  verifyPassword, hashPassword
 }

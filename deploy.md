@@ -47,71 +47,63 @@ const CURRENT_ENV = 'dev'      // 开发环境，对接公司物联网平台（m
 
 ---
 
-## 三、后端接口约定 Checklist
+## 三、公司平台接口对接说明
+
+> 小程序 `utils/config.js` 中的 `baseUrl = http://8.134.177.27:8082/api/v1`，下表路径均省略该前缀。
 
 ### 3.1 登录鉴权
 
 | 接口 | 方法 | 路径 | 说明 |
 |------|------|------|------|
-| 验证码图片 | GET | /pub/captcha | 返回 JSON 格式：{ code:0, data: { verify_key, img } }，其中 img 为 base64 图片 |
-| 账号登录 | POST | /login | body: { user_name, user_password, verify_code, verify_key, lang }，返回 JWT token |
-| 登出 | POST | /auth/logout | 使后端 token 失效，前端清除本地缓存 |
-| 管理员验证 | POST | /auth/verify-admin | body: { password }，验证添加/删除设备权限 |
+| 验证码图片 | GET | `/pub/captcha` | 返回 `{ code:0, data:{ verify_key, img } }` |
+| 账号登录 | POST | `/login` | body: `{ user_name, user_password, verify_code, verify_key, lang }` |
+| 平台登出 | - | - | 当前平台未提供公开登出接口；小程序仅清除本地 token/userInfo |
 
-**登录响应格式（平台实际）：**
-```json
-{
-  "code": 0,
-  "message": "",
-  "data": {
-    "token": "eyJhbGciOiJIUzI1NiJ9...",
-    "user_name": "admin",
-    "user_nickname": "管理员",
-    "list": [...],
-    "version": "1.0"
-  }
-}
-```
-> 平台采用 JWT Bearer token 鉴权，无 refreshToken 机制。JWT payload 中包含 User 对象（id、user_name、user_nickname、role_id、tenant_id 等字段），前端通过 decodeJwt 解码提取过期时间和用户信息。
+登录成功后，请求头使用 `Authorization: Bearer <token>`。平台返回 HTTP 200 时也可能携带业务 `code=402` 表示未授权，前端会清除本地登录态并跳转登录页。
 
-### 3.2 设备管理
+### 3.2 设备查询
 
 | 接口 | 方法 | 路径 | 说明 |
 |------|------|------|------|
-| 设备统计 | GET | /device/statistic | 返回 total/online/offline/fault |
-| 设备列表 | GET | /device/list | 分页，按 token 中 tenant_id 过滤，query: { device_name, page_num, page_size } |
-| 设备详情 | GET | /device/info | query: { device_id }，返回设备实时信息 |
-| 添加设备 | POST | /device/add | body: { device_id }，需先通过 /auth/verify-admin 鉴权 |
-| 删除设备 | POST | /device/delete | body: { device_id }，需先通过 /auth/verify-admin 鉴权 |
-| 打印下发 | POST | /device/print/dispatch | body: { deviceId, content, fontSize, count, immediate } |
-| 历史记录 | GET | /device/print/history | 分页，body: { deviceId, page, pageSize } |
+| 设备列表 | GET | `/device/list` | query: `{ product_name, lessee, username, imei, device_id, status, page_num, page_size }`；响应 `data.device`、`data.total` |
+| 设备详情 | GET | `/device/info` | query: `{ device_id }`；响应 `data.info` |
 
-### 3.3 WebSocket
+设备状态以公司平台定义为准：
 
-- 连接地址：wss://iot.your-domain.com/ws（URL 不携带 token）
-- 鉴权方式：连接建立后，客户端发送第一条消息 { type: auth, token: xxx } 进行鉴权
-- 鉴权成功：后端返回 { type: auth_ok }
-- 鉴权失败：后端返回 { code: 4001, message: token expired }
-- 心跳：客户端每 25s 发送 { type: ping }，服务端需回复 { type: pong }
-- 设备绑定通知：客户端发送 { type: device_bind, data: { deviceId, action: add|remove } }
-- 列表变更推送：后端推送 { type: device_list_change } 通知前端刷新设备列表
-- 状态变更推送：后端推送 { type: device_status, data: { deviceId, onlineStatus, faultStatus, printTime } }
-- 权限隔离：后端根据 token 中的 customerId 过滤推送数据
+| status | 含义 |
+|--------|------|
+| 1 | 未激活 |
+| 2 | 在线 |
+| 3 | 离线 |
 
----
+小程序只接入查询类设备接口，不包含添加设备、删除设备或修改平台数据的功能。
 
+### 3.3 喷码打印
+
+| 接口 | 方法 | 路径 | 说明 |
+|------|------|------|------|
+| 可喷印设备 | POST | `/inkjet_printer/k300_list` | 返回 `data.list`，用于喷码打印页设备选择 |
+| 喷印记录 | POST | `/inkjet_printer/list` | body: `{ date_range:[start,end], page_num, page_size }`；返回 `data.list`、`data.total` |
+| 开始喷印 | POST | `/inkjet_printer/start` | body: `{ dev_id, content }`；仅在用户主动点击“开始喷印”时调用 |
+
+字段显示：记录时间使用 `created_at`，设备 ID 使用 `dev_id`，喷印内容使用 `content`。
+
+**联调约束：** 自动化测试和开发验证不得调用 `/inkjet_printer/start`，避免对真实设备执行下发。
+
+### 3.4 实时状态
+
+公司平台当前未配置公开 WebSocket 地址，小程序 `wsUrl` 保持为空，页面通过重新进入或下拉刷新获取最新状态。
 ## 四、发布前自测清单
 
 ### 4.1 功能测试
 
-- [ ] 登录/登出功能正常
-- [ ] 设备列表加载、下拉刷新、上拉分页正常
-- [ ] 设备详情展示正常
-- [ ] 打印下发成功后，详情页数据自动刷新
-- [ ] 历史记录查询正常
-- [ ] WebSocket 实时状态更新正常
+- [ ] 登录正常，退出后本地 token/userInfo 已清理
+- [ ] 设备列表加载、搜索、下拉刷新、上拉分页正常
+- [ ] 设备详情字段和状态值显示正常
+- [ ] 可喷印设备列表加载正常（不调用 start）
+- [ ] 喷印记录日期筛选和分页正常
 - [ ] 网络断开时有提示，恢复后可正常使用
-- [ ] token 过期后自动刷新或跳转登录
+- [ ] token 失效（HTTP 401 或业务 code 401/402）后跳转登录
 
 ### 4.2 兼容性测试
 
@@ -172,8 +164,8 @@ A: 检查 config.js 中 baseUrl 是否为正确的生产环境地址，确认微
 ### Q3: WebSocket 连接不上
 A: 检查 wsUrl 是否使用 wss://，检查微信后台 socket 合法域名配置
 
-### Q4: token 过期后接口返回 401
-A: 平台无 refreshToken 机制，token 过期后前端会自动清理登录态并跳转登录页，重新登录即可
+### Q4: token 失效后接口返回 401/402
+A: 平台无 refreshToken 机制。HTTP 401 或业务 code 401/402 时，前端会清理本地登录态并跳转登录页，重新登录即可
 
 ### Q5: 小程序包大小超过 2MB
 A: 在 project.config.json 的 packOptions.ignore 中配置需忽略的文件；图片等资源可放在 CDN
@@ -185,3 +177,4 @@ A: 在 project.config.json 的 packOptions.ignore 中配置需忽略的文件；
 | 版本 | 日期 | 说明 |
 |------|------|------|
 | 1.0.0 | 2026-08-15 | 初始版本，支持设备管理、打印下发、历史记录 |
+| 1.0.1 | 2026-09-24 | 对接公司平台真实设备/喷印接口，统一状态值并改为只读设备查询 |

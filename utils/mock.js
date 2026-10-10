@@ -258,7 +258,7 @@ function getMockResponse(url, data) {
         result = getMockDeviceStatistic()
       } else if (url.indexOf('/device/list') !== -1) {
         result = getMockDeviceList(data)
-      } else if (url.indexOf('/device/detail') !== -1) {
+      } else if (url.indexOf('/device/detail') !== -1 || url.indexOf('/device/info') !== -1) {
         result = getMockDeviceDetail(data)
       } else if (url.indexOf('/device/add') !== -1) {
         result = mockAddDevice(data)
