@@ -1,0 +1,41 @@
+<!-- 告警列表页 -->
+<view class="page">
+  <!-- 筛选栏 -->
+  <view class="filter-bar">
+    <picker class="filter-item" range="{{levelOptions}}" value="{{levelFilter}}" bindchange="onLevelChange">
+      <view class="filter-text">级别：{{levelOptions[levelFilter]}} ▾</view>
+    </picker>
+    <picker class="filter-item" range="{{statusOptions}}" value="{{statusFilter}}" bindchange="onStatusChange">
+      <view class="filter-text">状态：{{statusOptions[statusFilter]}} ▾</view>
+    </picker>
+  </view>
+
+  <!-- 加载失败 -->
+  <view wx:if="{{loadError}}" class="empty-state">
+    <text class="empty-text">加载失败</text>
+    <button class="retry-btn" bindtap="onRetry">重试</button>
+  </view>
+
+  <!-- 空数据 -->
+  <view wx:elif="{{!loading && list.length === 0}}" class="empty-state">
+    <text class="empty-text">暂无告警</text>
+  </view>
+
+  <!-- 告警列表 -->
+  <view wx:else class="alarm-list">
+    <view class="alarm-card" wx:for="{{list}}" wx:key="id" data-id="{{item.id}}" bindtap="goDetail">
+      <view class="alarm-header">
+        <text class="alarm-type">{{item.alarm_type_text}}</text>
+        <text class="alarm-level" style="color:{{item.level_color}}; border-color:{{item.level_color}};">{{item.level_text}}</text>
+      </view>
+      <view class="alarm-device">设备：{{item.dev_id}}</view>
+      <view class="alarm-msg" wx:if="{{item.message}}">{{item.message}}</view>
+      <view class="alarm-footer">
+        <text class="alarm-time">{{item.created_at}}</text>
+        <text class="alarm-status" style="color:{{item.status_color}};">{{item.status_text}}</text>
+      </view>
+    </view>
+    <view wx:if="{{loading}}" class="loading-more">加载中...</view>
+    <view wx:elif="{{!hasMore && list.length > 0}}" class="loading-more">没有更多了</view>
+  </view>
+</view>

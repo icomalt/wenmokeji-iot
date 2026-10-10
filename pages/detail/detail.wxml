@@ -38,6 +38,21 @@
       <view class="d-row"><text class="muted">下行流量</text><text>{{device.downFlow || '--'}}</text></view>
     </view>
 
+    <view class="card">
+      <view class="card-title">
+        <text>设备参数</text>
+        <text class="refresh-btn" bindtap="fetchParams">{{paramsLoading ? '读取中...' : '刷新'}}</text>
+      </view>
+      <view wx:if="{{paramsLoading}}" class="params-loading">读取中...</view>
+      <view wx:elif="{{params.length === 0}}" class="params-empty" bindtap="fetchParams">点击刷新读取设备参数</view>
+      <view wx:else>
+        <view class="d-row" wx:for="{{params}}" wx:key="key">
+          <text class="muted">{{item.name || item.key}}</text>
+          <text>{{item.value}}</text>
+        </view>
+      </view>
+    </view>
+
     <view class="card" wx:if="{{device.latitude || device.longitude}}">
       <view class="card-title">位置信息</view>
       <view class="d-row"><text class="muted">纬度</text><text>{{device.latitude || '--'}}</text></view>
@@ -58,6 +73,7 @@
 
     <view class="actions">
       <button class="btn-primary" bindtap="goPrint">喷码打印</button>
+      <button class="btn-danger" bindtap="rebootDevice" wx:if="{{isAdmin}}">重启设备</button>
     </view>
   </block>
 </view>

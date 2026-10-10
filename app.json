@@ -6,6 +6,9 @@
     "pages/detail/detail",
     "pages/print/print",
     "pages/history/history",
+    "pages/alarm/alarm",
+    "pages/alarm-detail/alarm-detail",
+    "pages/password/password",
     "pages/privacy/privacy"
   ],
   "window": {

@@ -91,6 +91,14 @@ Page({
     wx.navigateTo({ url: '/pages/print/print' })
   },
 
+  goAlarm: function () {
+    wx.navigateTo({ url: '/pages/alarm/alarm' })
+  },
+
+  goPassword: function () {
+    wx.navigateTo({ url: '/pages/password/password' })
+  },
+
   onShareAppMessage: function () {
     return {
       title: '喷码机物联网云平台',
@@ -113,10 +121,15 @@ Page({
       content: '确定退出登录？',
       success: function (res) {
         if (!res.confirm) return
-        if (ws.closeAll) ws.closeAll()
-        that._wsHandler = null
-        auth.clearAuth()
-        wx.reLaunch({ url: '/pages/login/login' })
+        // 调用后端登出接口使 token 失效（无论成功失败都清本地登录态）
+        api.post('/auth/logout', {}, { loading: false })
+          .catch(function () {})
+          .then(function () {
+            if (ws.closeAll) ws.closeAll()
+            that._wsHandler = null
+            auth.clearAuth()
+            wx.reLaunch({ url: '/pages/login/login' })
+          })
       }
     })
   }

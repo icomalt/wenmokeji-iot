@@ -1,0 +1,75 @@
+<!-- 告警详情页 -->
+<view class="page">
+  <!-- 加载失败 -->
+  <view wx:if="{{loadError}}" class="empty-state">
+    <text class="empty-text">加载失败</text>
+    <button class="retry-btn" bindtap="onRetry">重试</button>
+  </view>
+
+  <!-- 详情 -->
+  <view wx:elif="{{detail}}" class="detail">
+    <!-- 告警头部 -->
+    <view class="header-card">
+      <view class="header-row">
+        <text class="alarm-type">{{detail.alarm_type_text}}</text>
+        <text class="alarm-level" style="color:{{detail.level_color}}; border-color:{{detail.level_color}};">{{detail.level_text}}</text>
+      </view>
+      <view class="header-status">
+        <text class="status-tag" style="color:{{detail.status_color}}; border-color:{{detail.status_color}};">{{detail.status_text}}</text>
+      </view>
+    </view>
+
+    <!-- 基本信息 -->
+    <view class="info-card">
+      <view class="info-title">告警信息</view>
+      <view class="info-row">
+        <text class="info-label">设备ID</text>
+        <text class="info-value">{{detail.dev_id}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-label">告警时间</text>
+        <text class="info-value">{{detail.created_at}}</text>
+      </view>
+      <view class="info-row" wx:if="{{detail.message}}">
+        <text class="info-label">告警内容</text>
+        <text class="info-value">{{detail.message}}</text>
+      </view>
+      <view class="info-row" wx:if="{{detail.handled_at}}">
+        <text class="info-label">处理时间</text>
+        <text class="info-value">{{detail.handled_at}}</text>
+      </view>
+      <view class="info-row" wx:if="{{detail.handled_by}}">
+        <text class="info-label">处理人</text>
+        <text class="info-value">{{detail.handled_by}}</text>
+      </view>
+      <view class="info-row" wx:if="{{detail.remark}}">
+        <text class="info-label">处理备注</text>
+        <text class="info-value">{{detail.remark}}</text>
+      </view>
+    </view>
+
+    <!-- 原始数据 -->
+    <view class="info-card" wx:if="{{detail.raw_data}}">
+      <view class="info-title">原始数据</view>
+      <view class="raw-data">{{detail.raw_data}}</view>
+    </view>
+
+    <!-- 操作按钮（未处理时显示） -->
+    <view class="action-bar" wx:if="{{detail.status === 0}}">
+      <button class="action-btn resolve" data-action="resolve" bindtap="openHandleModal">标记已处理</button>
+      <button class="action-btn ignore" data-action="ignore" bindtap="openHandleModal">忽略</button>
+    </view>
+  </view>
+
+  <!-- 处理弹窗 -->
+  <view class="modal-mask" wx:if="{{showHandleModal}}" bindtap="closeHandleModal">
+    <view class="modal-content" catchtap="">
+      <view class="modal-title">{{handleAction === 'resolve' ? '标记已处理' : '忽略告警'}}</view>
+      <textarea class="modal-textarea" placeholder="处理备注（可选，最多200字）" value="{{handleRemark}}" bindinput="onRemarkInput" maxlength="200"/>
+      <view class="modal-btns">
+        <button class="modal-btn cancel" bindtap="closeHandleModal">取消</button>
+        <button class="modal-btn confirm" bindtap="confirmHandle" disabled="{{submitting}}">{{submitting ? '提交中...' : '确认'}}</button>
+      </view>
+    </view>
+  </view>
+</view>

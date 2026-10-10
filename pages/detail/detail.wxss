@@ -158,3 +158,39 @@
   color: #94A3B8;
   margin-top: 12rpx;
 }
+
+/* 设备参数区域 */
+.card-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.refresh-btn {
+  font-size: 24rpx;
+  color: #1A365D;
+  font-weight: normal;
+  padding: 6rpx 20rpx;
+  background: #EFF6FF;
+  border-radius: 20rpx;
+}
+.params-loading, .params-empty {
+  text-align: center;
+  font-size: 26rpx;
+  color: #94A3B8;
+  padding: 32rpx 0;
+}
+.params-empty {
+  color: #1A365D;
+}
+
+/* 危险按钮 */
+.btn-danger {
+  margin-bottom: 0;
+  background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+  color: #fff;
+  border: none;
+  border-radius: 16rpx;
+  padding: 24rpx 0;
+  font-size: 30rpx;
+  font-weight: 500;
+}

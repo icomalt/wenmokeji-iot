@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "告警中心",
+  "navigationBarBackgroundColor": "#1A365D",
+  "navigationBarTextStyle": "white",
+  "enablePullDownRefresh": true
+}

@@ -16,7 +16,10 @@ Page({
     device: null,
     loadDone: false,
     currentTime: '',
-    username: ''
+    username: '',
+    isAdmin: false,
+    params: [],
+    paramsLoading: false
   },
 
   onLoad: function (options) {
@@ -25,7 +28,8 @@ Page({
     var username = userInfo.name || userInfo.username || '用户'
     this.setData({ 
       deviceId: options.id ? decodeURIComponent(options.id) : '',
-      username: username
+      username: username,
+      isAdmin: auth.isAdmin()
     })
     this._routeStatus = Number(options.status) || 0
     this._routeCompanyName = options.company ? decodeURIComponent(options.company) : ''
@@ -143,5 +147,60 @@ Page({
     }
     var url = '/pages/print/print?id=' + encodeURIComponent(this.data.deviceId) + '&name=' + encodeURIComponent(this.data.device.deviceName || '')
     wx.navigateTo({ url: url })
+  },
+
+  /**
+   * 读取设备参数 —— POST /device/param/read
+   */
+  fetchParams: function () {
+    var that = this
+    if (!this.data.deviceId) return
+    this.setData({ paramsLoading: true })
+    api.post('/device/param/read', {
+      dev_id: this.data.deviceId,
+      param_keys: []
+    }, { loading: false })
+      .then(function (res) {
+        var params = (res && res.params) || []
+        that.setData({ params: params, paramsLoading: false })
+      })
+      .catch(function (err) {
+        console.error('[detail] fetchParams error:', err)
+        that.setData({ paramsLoading: false })
+        wx.showToast({ title: '参数读取失败', icon: 'none' })
+      })
+  },
+
+  /**
+   * 设备重启 —— POST /device/reboot（仅 admin）
+   */
+  rebootDevice: function () {
+    var that = this
+    if (!this.data.isAdmin) {
+      wx.showToast({ title: '无操作权限', icon: 'none' })
+      return
+    }
+    if (this.data.device && this.data.device.onlineStatus !== 2) {
+      wx.showToast({ title: '设备离线，无法重启', icon: 'none' })
+      return
+    }
+    wx.showModal({
+      title: '高危操作',
+      content: '确定要重启设备 ' + this.data.deviceId + ' 吗？重启期间设备将短暂离线。',
+      confirmText: '确认重启',
+      confirmColor: '#EF4444',
+      success: function (res) {
+        if (!res.confirm) return
+        api.post('/device/reboot', {
+          dev_id: that.data.deviceId
+        }, { loading: true })
+          .then(function () {
+            wx.showToast({ title: '重启指令已下发', icon: 'success' })
+          })
+          .catch(function (err) {
+            console.error('[detail] reboot error:', err)
+          })
+      }
+    })
   }
 })

@@ -67,5 +67,20 @@
     </view>
   </view>
 
+  <!-- 更多功能 -->
+  <view class="card">
+    <view class="card-title">更多功能</view>
+    <view class="mgmt-btns">
+      <view class="mgmt-btn alarm" bindtap="goAlarm">
+        <text class="mgmt-icon">⚠</text>
+        <text class="mgmt-lbl">告警中心</text>
+      </view>
+      <view class="mgmt-btn password" bindtap="goPassword">
+        <text class="mgmt-icon">🔒</text>
+        <text class="mgmt-lbl">修改密码</text>
+      </view>
+    </view>
+  </view>
+
   <view class="footer-tip">Industrial Inkjet IoT Cloud v1.0</view>
 </view>

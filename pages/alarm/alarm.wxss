@@ -1,0 +1,100 @@
+.page {
+  min-height: 100vh;
+  background: #F1F5F9;
+  padding-bottom: 40rpx;
+}
+.filter-bar {
+  display: flex;
+  padding: 24rpx 32rpx;
+  background: #fff;
+  border-bottom: 2rpx solid #E2E8F0;
+  gap: 24rpx;
+}
+.filter-item {
+  flex: 1;
+}
+.filter-text {
+  font-size: 26rpx;
+  color: #475569;
+  background: #F1F5F9;
+  padding: 16rpx 24rpx;
+  border-radius: 8rpx;
+  text-align: center;
+}
+.alarm-list {
+  padding: 24rpx 32rpx;
+}
+.alarm-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.04);
+}
+.alarm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+.alarm-type {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1E293B;
+}
+.alarm-level {
+  font-size: 22rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 20rpx;
+  border: 2rpx solid;
+}
+.alarm-device {
+  font-size: 26rpx;
+  color: #64748B;
+  margin-bottom: 8rpx;
+}
+.alarm-msg {
+  font-size: 26rpx;
+  color: #475569;
+  margin-bottom: 12rpx;
+  line-height: 1.5;
+}
+.alarm-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12rpx;
+  border-top: 2rpx solid #F1F5F9;
+}
+.alarm-time {
+  font-size: 24rpx;
+  color: #94A3B8;
+}
+.alarm-status {
+  font-size: 24rpx;
+  font-weight: 500;
+}
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120rpx 0;
+}
+.empty-text {
+  font-size: 28rpx;
+  color: #94A3B8;
+  margin-bottom: 32rpx;
+}
+.retry-btn {
+  background: #1A365D;
+  color: #fff;
+  font-size: 28rpx;
+  padding: 16rpx 48rpx;
+  border-radius: 8rpx;
+}
+.loading-more {
+  text-align: center;
+  font-size: 24rpx;
+  color: #94A3B8;
+  padding: 24rpx 0;
+}
